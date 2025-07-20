@@ -68,14 +68,7 @@ scp <USER>@<MASTER-HOST-IP>:/tmp/config <LOCAL-USER-HOME-PATH>\.kube
 ```
 
 ## 7. Install Calico Network Manager
-Install Tigera Operator
-```
-kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/tigera-operator.yaml
-```
-Install Calico Resources
-```
-kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/custom-resources.yaml
-```
+See: [Calico Installation]https://docs.tigera.io/calico/latest/getting-started/kubernetes/helm)
 
 ## 8. Install operators with helm using Github Actions
 See Github Actions -> Deploy
