@@ -51,6 +51,23 @@
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
 
+    - name: Wait for nodes ready
+      shell: |
+        kubectl wait --for=condition=Ready nodes --all --timeout=300s
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Install ArgoCD namespace
+      shell: kubectl create namespace argocd || true
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Install ArgoCD
+      shell: |
+        kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
 - name: Join workers
   hosts: k8s_workers
   become: yes
