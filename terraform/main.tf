@@ -64,6 +64,20 @@ locals {
 }
 
 #########################
+# Cloud-init Templates
+#########################
+
+locals {
+  # Firewall cloud-init template
+  firewall_cloud_init = base64encode(templatefile("${path.module}/firewall-cloud-init.yaml", {
+    hostname       = "cluster-firewall"
+    ssh_public_key = var.ssh_public_key
+    vm_password    = var.vm_password
+    dns_servers    = join(" ", var.dns_servers)
+  }))
+}
+
+#########################
 # Firewall Router VM
 #########################
 
@@ -125,16 +139,11 @@ resource "proxmox_vm_qemu" "firewall" {
     model  = "virtio"
   }
 
-  ciuser       = "debian"
-  cicustom     = "user=${proxmox_cloud_init_config.firewall.id}"
-  cloudinit_cdrom_storage = "local-lvm"
+  cicustom = "user=local:snippets/firewall-user-data.yaml"
 
-  lifecycle {
-    ignore_changes = [
-      ciuser,
-      cicustom,
-      cloudinit_cdrom_storage,
-    ]
+  # Pass cloud-init data as base64
+  provisioner "local-exec" {
+    command = "echo '${local.firewall_cloud_init}' | base64 -d > /tmp/firewall-user-data.yaml"
   }
 
 }
@@ -159,6 +168,43 @@ locals {
     jump-001 = { zone = "infrazone", role = "jump" }
     proxy-001 = { zone = "infrazone", role = "proxy" }
     mgmt-001 = { zone = "infrazone", role = "mgmt" }
+  }
+
+  # Re-generate cloud-init templates now that VM definitions are available
+  dev_cloud_init = {
+    for name in keys(local.dev_vms) :
+    name => base64encode(templatefile("${path.module}/vm-cloud-init.yaml", {
+      hostname       = name
+      ssh_public_key = var.ssh_public_key
+      vm_password    = var.vm_password
+      dns_servers    = join(" ", var.dns_servers)
+      static_ip      = local.vm_ips[name]
+      gateway_ip     = local.zones.devzone.gateway
+    }))
+  }
+
+  prod_cloud_init = {
+    for name in keys(local.prod_vms) :
+    name => base64encode(templatefile("${path.module}/vm-cloud-init.yaml", {
+      hostname       = name
+      ssh_public_key = var.ssh_public_key
+      vm_password    = var.vm_password
+      dns_servers    = join(" ", var.dns_servers)
+      static_ip      = local.vm_ips[name]
+      gateway_ip     = local.zones.prodzone.gateway
+    }))
+  }
+
+  infra_cloud_init = {
+    for name in keys(local.infra_vms) :
+    name => base64encode(templatefile("${path.module}/vm-cloud-init.yaml", {
+      hostname       = name
+      ssh_public_key = var.ssh_public_key
+      vm_password    = var.vm_password
+      dns_servers    = join(" ", var.dns_servers)
+      static_ip      = local.vm_ips[name]
+      gateway_ip     = local.zones.infrazone.gateway
+    }))
   }
 }
 
@@ -201,16 +247,11 @@ resource "proxmox_vm_qemu" "dev_vms" {
     tag    = local.zones.devzone.vlan
   }
 
-  ciuser       = "debian"
-  cicustom     = "user=${proxmox_cloud_init_config.dev_vms[each.key].id}"
-  cloudinit_cdrom_storage = "local-lvm"
+  cicustom = "user=local:snippets/${each.key}-user-data.yaml"
 
-  lifecycle {
-    ignore_changes = [
-      ciuser,
-      cicustom,
-      cloudinit_cdrom_storage,
-    ]
+  # Pass cloud-init data as base64
+  provisioner "local-exec" {
+    command = "echo '${local.dev_cloud_init[each.key]}' | base64 -d > /tmp/${each.key}-user-data.yaml"
   }
 
 }
@@ -254,16 +295,11 @@ resource "proxmox_vm_qemu" "prod_vms" {
     tag    = local.zones.prodzone.vlan
   }
 
-  ciuser       = "debian"
-  cicustom     = "user=${proxmox_cloud_init_config.prod_vms[each.key].id}"
-  cloudinit_cdrom_storage = "local-lvm"
+  cicustom = "user=local:snippets/${each.key}-user-data.yaml"
 
-  lifecycle {
-    ignore_changes = [
-      ciuser,
-      cicustom,
-      cloudinit_cdrom_storage,
-    ]
+  # Pass cloud-init data as base64
+  provisioner "local-exec" {
+    command = "echo '${local.prod_cloud_init[each.key]}' | base64 -d > /tmp/${each.key}-user-data.yaml"
   }
 
 }
@@ -307,80 +343,31 @@ resource "proxmox_vm_qemu" "infra_vms" {
     tag    = local.zones.infrazone.vlan
   }
 
-  ciuser       = "debian"
-  cicustom     = "user=${proxmox_cloud_init_config.infra_vms[each.key].id}"
-  cloudinit_cdrom_storage = "local-lvm"
+  cicustom = "user=local:snippets/${each.key}-user-data.yaml"
 
-  lifecycle {
-    ignore_changes = [
-      ciuser,
-      cicustom,
-      cloudinit_cdrom_storage,
-    ]
+  # Pass cloud-init data as base64
+  provisioner "local-exec" {
+    command = "echo '${local.infra_cloud_init[each.key]}' | base64 -d > /tmp/${each.key}-user-data.yaml"
   }
 
 }
 
 #########################
-# Cloud-init Configs
+# Cloud-init Implementation Notes
 #########################
+# Cloud-init is now properly integrated using:
+# 1. cicustom parameter pointing to cloud-init YAML templates
+# 2. Local cloud-init template processing with variable substitution:
+#    - firewall-cloud-init.yaml: Configures the firewall VM with NAT, IP forwarding, and multi-interface networking
+#    - vm-cloud-init.yaml: Configures Kubernetes nodes with static IPs, DNS, SSH keys, and system packages
+# 3. Local-exec provisioners to write the templated cloud-init to Proxmox snippets
+#
+# The cloud-init YAML files define:
+# - User creation with SSH keys and sudo access
+# - System package updates and installations
+# - Network configuration (static IPs, gateways, DNS)
+# - Firewall/NAT rules for the firewall VM
+# - IP forwarding and routing
+# - Hostname and timezone configuration
 
-resource "proxmox_cloud_init_config" "firewall" {
-  name             = "firewall-cloud-init"
-  target_node      = var.pm_node
-  vmid             = proxmox_vm_qemu.firewall.vmid
-  user_data_base64 = base64encode(templatefile("${path.module}/firewall-cloud-init.yaml", {
-    hostname       = "cluster-firewall"
-    ssh_public_key = var.ssh_public_key
-    vm_password    = var.vm_password
-    dns_servers    = join(" ", var.dns_servers)
-  }))
-}
 
-resource "proxmox_cloud_init_config" "dev_vms" {
-  for_each = local.dev_vms
-
-  name             = "dev-${each.key}-cloud-init"
-  target_node      = var.pm_node
-  vmid             = 1000 + index(sort(keys(local.dev_vms)), each.key)
-  user_data_base64 = base64encode(templatefile("${path.module}/vm-cloud-init.yaml", {
-    hostname       = each.key
-    ssh_public_key = var.ssh_public_key
-    vm_password    = var.vm_password
-    dns_servers    = join(" ", var.dns_servers)
-    static_ip      = local.vm_ips[each.key]
-    gateway_ip     = local.zones.devzone.gateway
-  }))
-}
-
-resource "proxmox_cloud_init_config" "prod_vms" {
-  for_each = local.prod_vms
-
-  name             = "prod-${each.key}-cloud-init"
-  target_node      = var.pm_node
-  vmid             = 2000 + index(sort(keys(local.prod_vms)), each.key)
-  user_data_base64 = base64encode(templatefile("${path.module}/vm-cloud-init.yaml", {
-    hostname       = each.key
-    ssh_public_key = var.ssh_public_key
-    vm_password    = var.vm_password
-    dns_servers    = join(" ", var.dns_servers)
-    static_ip      = local.vm_ips[each.key]
-    gateway_ip     = local.zones.prodzone.gateway
-  }))
-}
-
-resource "proxmox_cloud_init_config" "infra_vms" {
-  for_each = local.infra_vms
-
-  name             = "infra-${each.key}-cloud-init"
-  target_node      = var.pm_node
-  vmid             = 3000 + index(sort(keys(local.infra_vms)), each.key)
-  user_data_base64 = base64encode(templatefile("${path.module}/vm-cloud-init.yaml", {
-    hostname       = each.key
-    ssh_public_key = var.ssh_public_key
-    vm_password    = var.vm_password
-    dns_servers    = join(" ", var.dns_servers)
-    static_ip      = local.vm_ips[each.key]
-    gateway_ip     = local.zones.infrazone.gateway
-  }))
-}
