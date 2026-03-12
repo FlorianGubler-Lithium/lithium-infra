@@ -85,13 +85,13 @@ resource "proxmox_vm_qemu" "firewall" {
 
   name        = "cluster-firewall"
   target_node = var.pm_node
-  iso         = var.debian_iso
+  iso_file    = var.debian_iso
 
   vmid  = 100
   cores = 2
   memory = 4096
 
-  boot = "order=virtio0;ide2"
+  boot = "order=scsi0"
 
   agent = 1
 
@@ -101,16 +101,19 @@ resource "proxmox_vm_qemu" "firewall" {
     storage = "local-lvm"
     size    = "50G"
     format  = "raw"
+    slot    = 0
   }
 
   # Management interface
   network {
+    id     = 0
     bridge = "vmbr0"
     model  = "virtio"
   }
 
   # Dev zone interface
   network {
+    id     = 1
     bridge = "vmbr0"
     tag    = local.zones.devzone.vlan
     model  = "virtio"
@@ -118,6 +121,7 @@ resource "proxmox_vm_qemu" "firewall" {
 
   # Prod zone interface
   network {
+    id     = 2
     bridge = "vmbr0"
     tag    = local.zones.prodzone.vlan
     model  = "virtio"
@@ -125,6 +129,7 @@ resource "proxmox_vm_qemu" "firewall" {
 
   # Infra zone interface
   network {
+    id     = 3
     bridge = "vmbr0"
     tag    = local.zones.infrazone.vlan
     model  = "virtio"
@@ -205,13 +210,13 @@ resource "proxmox_vm_qemu" "dev_vms" {
 
   name        = each.key
   target_node = var.pm_node
-  iso         = var.debian_iso
+  iso_file    = var.debian_iso
 
   vmid   = 1000 + index(sort(keys(local.dev_vms)), each.key)
   cores  = 2
   memory = 4096
 
-  boot = "order=virtio0;ide2"
+  boot = "order=scsi0"
 
   agent = 1
 
@@ -221,9 +226,11 @@ resource "proxmox_vm_qemu" "dev_vms" {
     storage = "local-lvm"
     size    = "50G"
     format  = "raw"
+    slot    = 0
   }
 
   network {
+    id     = 0
     model  = "virtio"
     bridge = "vmbr0"
     tag    = local.zones.devzone.vlan
@@ -244,13 +251,13 @@ resource "proxmox_vm_qemu" "prod_vms" {
 
   name        = each.key
   target_node = var.pm_node
-  iso         = var.debian_iso
+  iso_file    = var.debian_iso
 
   vmid   = 2000 + index(sort(keys(local.prod_vms)), each.key)
   cores  = 2
   memory = 4096
 
-  boot = "order=virtio0;ide2"
+  boot = "order=scsi0"
 
   agent = 1
 
@@ -260,9 +267,11 @@ resource "proxmox_vm_qemu" "prod_vms" {
     storage = "local-lvm"
     size    = "50G"
     format  = "raw"
+    slot    = 0
   }
 
   network {
+    id     = 0
     model  = "virtio"
     bridge = "vmbr0"
     tag    = local.zones.prodzone.vlan
@@ -283,13 +292,13 @@ resource "proxmox_vm_qemu" "infra_vms" {
 
   name        = each.key
   target_node = var.pm_node
-  iso         = var.debian_iso
+  iso_file    = var.debian_iso
 
   vmid   = 3000 + index(sort(keys(local.infra_vms)), each.key)
   cores  = 2
   memory = 4096
 
-  boot = "order=virtio0;ide2"
+  boot = "order=scsi0"
 
   agent = 1
 
@@ -299,9 +308,11 @@ resource "proxmox_vm_qemu" "infra_vms" {
     storage = "local-lvm"
     size    = "50G"
     format  = "raw"
+    slot    = 0
   }
 
   network {
+    id     = 0
     model  = "virtio"
     bridge = "vmbr0"
     tag    = local.zones.infrazone.vlan
@@ -333,5 +344,3 @@ resource "proxmox_vm_qemu" "infra_vms" {
 # - Firewall/NAT rules for the firewall VM
 # - IP forwarding and routing
 # - Hostname and timezone configuration
-
-
