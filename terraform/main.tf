@@ -85,7 +85,6 @@ resource "proxmox_vm_qemu" "firewall" {
 
   name        = "cluster-firewall"
   target_node = var.pm_node
-  iso_file    = var.debian_iso
 
   vmid  = 100
   cores = 2
@@ -95,13 +94,23 @@ resource "proxmox_vm_qemu" "firewall" {
 
   agent = 1
 
-  # Root disk configuration
-  disk {
-    type    = "scsi"
-    storage = "local-lvm"
-    size    = "50G"
-    format  = "raw"
-    slot    = 0
+  disks {
+    ide {
+      ide2 {
+        cdrom {
+          iso = var.debian_iso
+        }
+      }
+    }
+    scsi {
+      scsi0 {
+        disk {
+          storage = "local-lvm"
+          size    = 50
+          format  = "raw"
+        }
+      }
+    }
   }
 
   # Management interface
@@ -210,7 +219,6 @@ resource "proxmox_vm_qemu" "dev_vms" {
 
   name        = each.key
   target_node = var.pm_node
-  iso_file    = var.debian_iso
 
   vmid   = 1000 + index(sort(keys(local.dev_vms)), each.key)
   cores  = 2
@@ -220,13 +228,23 @@ resource "proxmox_vm_qemu" "dev_vms" {
 
   agent = 1
 
-  # Root disk configuration
-  disk {
-    type    = "scsi"
-    storage = "local-lvm"
-    size    = "50G"
-    format  = "raw"
-    slot    = 0
+  disks {
+    ide {
+      ide2 {
+        cdrom {
+          iso = var.debian_iso
+        }
+      }
+    }
+    scsi {
+      scsi0 {
+        disk {
+          storage = "local-lvm"
+          size    = 50
+          format  = "raw"
+        }
+      }
+    }
   }
 
   network {
@@ -251,7 +269,6 @@ resource "proxmox_vm_qemu" "prod_vms" {
 
   name        = each.key
   target_node = var.pm_node
-  iso_file    = var.debian_iso
 
   vmid   = 2000 + index(sort(keys(local.prod_vms)), each.key)
   cores  = 2
@@ -261,13 +278,23 @@ resource "proxmox_vm_qemu" "prod_vms" {
 
   agent = 1
 
-  # Root disk configuration
-  disk {
-    type    = "scsi"
-    storage = "local-lvm"
-    size    = "50G"
-    format  = "raw"
-    slot    = 0
+  disks {
+    ide {
+      ide2 {
+        cdrom {
+          iso = var.debian_iso
+        }
+      }
+    }
+    scsi {
+      scsi0 {
+        disk {
+          storage = "local-lvm"
+          size    = 50
+          format  = "raw"
+        }
+      }
+    }
   }
 
   network {
@@ -292,7 +319,6 @@ resource "proxmox_vm_qemu" "infra_vms" {
 
   name        = each.key
   target_node = var.pm_node
-  iso_file    = var.debian_iso
 
   vmid   = 3000 + index(sort(keys(local.infra_vms)), each.key)
   cores  = 2
@@ -302,13 +328,23 @@ resource "proxmox_vm_qemu" "infra_vms" {
 
   agent = 1
 
-  # Root disk configuration
-  disk {
-    type    = "scsi"
-    storage = "local-lvm"
-    size    = "50G"
-    format  = "raw"
-    slot    = 0
+  disks {
+    ide {
+      ide2 {
+        cdrom {
+          iso = var.debian_iso
+        }
+      }
+    }
+    scsi {
+      scsi0 {
+        disk {
+          storage = "local-lvm"
+          size    = 50
+          format  = "raw"
+        }
+      }
+    }
   }
 
   network {
