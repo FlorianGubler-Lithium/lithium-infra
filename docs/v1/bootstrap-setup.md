@@ -54,13 +54,24 @@ The management host is an external machine which is only needed in the bootstrap
 2. Install the necessary tools:
    1. Terraform: https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
    2. Ansible: https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html
+      1. Or just run ```apt install ansible -y``` on Debian-based systems
    3. Git: https://git-scm.com/downloads
 3. Clone the following repository: https://github.com/FlorianGubler-Lithium/lithium-infra
-4. Navigate to the terraform directory and run ```terraform init``` to initialize the Terraform configuration.
-5. Create a file named ```terraform.tfvars``` in the terraform directory with the following content, replacing the values with your Proxmox API credentials and template IDs:
+
+## Bootstrapping the Infrastructure
+### Terraform Initialization
+Terraform handles all the VM provisioning and network configuration on the Proxmox host. The Terraform configuration is located in the ```terraform``` directory of the repository.
+
+1. Navigate to the terraform directory and run ```terraform init``` to initialize the Terraform configuration.
+2. Create a file named ```terraform.tfvars``` in the terraform directory with the following content, replacing the values with your Proxmox API credentials and template IDs:
    ```
    pm_api_url            = "http://192.168.1.25:8006/api2/json"
    pm_api_token_secret   = "<Generated API Token Value>"
    pm_node               = "prx-001"
    vm_password           = "<Initial VM Password>"
+   debian_iso            = "local:iso/<DEBIAN ISO FILENAME>.iso"
+   dns_servers           = ["1.1.1.1", "1.0.0.1"]
    ```
+### Ansible Initialization
+Ansible is used for configuring the VMs after they are provisioned by Terraform. The Ansible configurations are located in the ```ansible``` directory of the repository.
+
