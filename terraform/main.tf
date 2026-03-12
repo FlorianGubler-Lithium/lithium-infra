@@ -225,12 +225,14 @@ resource "proxmox_vm_qemu" "dev_vms" {
   }
 
   disks {
-    scsi0 {
-      disk {
-        storage = "local-lvm"
-        size    = 50
-        format  = "qcow2"
-        import_from = var.debian_iso
+    scsi {
+      scsi0 {
+        disk {
+          storage = "local-lvm"
+          size    = 50
+          format  = "qcow2"
+          import_from = var.debian_iso
+        }
       }
     }
   }
@@ -269,12 +271,14 @@ resource "proxmox_vm_qemu" "prod_vms" {
   }
 
   disks {
-    scsi0 {
-      disk {
-        storage = "local-lvm"
-        size    = 50
-        format  = "qcow2"
-        import_from = var.debian_iso
+    scsi {
+      scsi0 {
+        disk {
+          storage = "local-lvm"
+          size    = 50
+          format  = "qcow2"
+          import_from = var.debian_iso
+        }
       }
     }
   }
@@ -313,12 +317,14 @@ resource "proxmox_vm_qemu" "infra_vms" {
   }
 
   disks {
-    scsi0 {
-      disk {
-        storage = "local-lvm"
-        size    = 50
-        format  = "qcow2"
-        import_from = var.debian_iso
+    scsi {
+      scsi0 {
+        disk {
+          storage = "local-lvm"
+          size    = 50
+          format  = "qcow2"
+          import_from = var.debian_iso
+        }
       }
     }
   }
