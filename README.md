@@ -40,7 +40,7 @@ kubectl get nodes
 
 **Total deployment time: ~90 minutes** (with prerequisites installed)
 
-👉 **[Read the Quick Start Guide](docs/quick-start.md)** for detailed instructions
+👉 **[Read the Quick Start Guide](docs/v0/quick-start.md)** for detailed instructions
 
 ## Architecture
 
@@ -63,24 +63,24 @@ Proxmox Host
 └── Firewall VM (manages VLAN routing and inter-zone policies)
 ```
 
-👉 **[Full Architecture Details](docs/architecture.md)**
+👉 **[Full Architecture Details](docs/v0/architecture.md)**
 
 ## Documentation
 
 | Document | Purpose |
 |----------|---------|
-| **[INDEX.md](docs/INDEX.md)** | Documentation navigation and decision trees |
-| **[Quick Start](docs/quick-start.md)** | 10-minute setup guide (TL;DR) |
-| **[Deployment Guide](docs/deployment-guide.md)** | Step-by-step deployment with troubleshooting |
-| **[Architecture](docs/architecture.md)** | System design, zones, security boundaries |
-| **[Network Design](docs/network-design.md)** | VLAN topology, IP planning, firewall rules |
-| **[Terraform Planning](docs/terraform-planning.md)** | IaC design, VM specs, prerequisites |
-| **[Ansible Strategy](docs/ansible-strategy.md)** | Playbook structure, roles, variables |
-| **[ArgoCD Integration](docs/argocd-integration.md)** | GitOps workflow, app definitions |
-| **[Operations Runbook](docs/operations-runbook.md)** | Daily tasks, common operations, escalation |
-| **[Troubleshooting](docs/troubleshooting.md)** | Issue diagnosis and resolution |
+| **[INDEX.md](docs/v0/INDEX.md)** | Documentation navigation and decision trees |
+| **[Quick Start](docs/v0/quick-start.md)** | 10-minute setup guide (TL;DR) |
+| **[Deployment Guide](docs/v0/deployment-guide.md)** | Step-by-step deployment with troubleshooting |
+| **[Architecture](docs/v0/architecture.md)** | System design, zones, security boundaries |
+| **[Network Design](docs/v0/network-design.md)** | VLAN topology, IP planning, firewall rules |
+| **[Terraform Planning](docs/v0/terraform-planning.md)** | IaC design, VM specs, prerequisites |
+| **[Ansible Strategy](docs/v0/ansible-strategy.md)** | Playbook structure, roles, variables |
+| **[ArgoCD Integration](docs/v0/argocd-integration.md)** | GitOps workflow, app definitions |
+| **[Operations Runbook](docs/v0/operations-runbook.md)** | Daily tasks, common operations, escalation |
+| **[Troubleshooting](docs/v0/troubleshooting.md)** | Issue diagnosis and resolution |
 
-**Start here:** [Documentation Index](docs/INDEX.md)
+**Start here:** [Documentation Index](docs/v0/INDEX.md)
 
 ## Key Features
 
@@ -173,7 +173,7 @@ lithium-infra/
 - Proxmox 7.x or 8.x
 - 16+ GB RAM (minimum, 32+ GB recommended)
 - 100+ GB disk space for VMs
-- VM templates configured (see [Deployment Guide](docs/deployment-guide.md))
+- VM templates configured (see [Deployment Guide](docs/v0/deployment-guide.md))
 - VLAN-capable network interface
 
 ### Network
@@ -184,19 +184,19 @@ lithium-infra/
 ## Getting Started
 
 ### 1. Read Documentation (30 minutes)
-Start with [Documentation Index](docs/INDEX.md) and [Architecture](docs/architecture.md) to understand the system design.
+Start with [Documentation Index](docs/v0/INDEX.md) and [Architecture](docs/v0/architecture.md) to understand the system design.
 
 ### 2. Deploy Infrastructure (90 minutes)
-Follow [Quick Start](docs/quick-start.md) or detailed [Deployment Guide](docs/deployment-guide.md).
+Follow [Quick Start](docs/v0/quick-start.md) or detailed [Deployment Guide](docs/v0/deployment-guide.md).
 
 ### 3. Verify Installation (15 minutes)
 Run health checks and confirm all nodes are Ready: `kubectl get nodes`
 
 ### 4. Deploy Applications (Ongoing)
-Use [ArgoCD Integration](docs/argocd-integration.md) guide to deploy workloads via GitOps.
+Use [ArgoCD Integration](docs/v0/argocd-integration.md) guide to deploy workloads via GitOps.
 
 ### 5. Manage Operations (Ongoing)
-Reference [Operations Runbook](docs/operations-runbook.md) for daily tasks and troubleshooting.
+Reference [Operations Runbook](docs/v0/operations-runbook.md) for daily tasks and troubleshooting.
 
 ## Common Commands
 
@@ -224,11 +224,11 @@ terraform -chdir=terraform show
 ansible-playbook -i ansible/inventory.ini ansible/playbooks/bootstrap-all.yml
 ```
 
-**Full command reference:** See [Operations Runbook](docs/operations-runbook.md)
+**Full command reference:** See [Operations Runbook](docs/v0/operations-runbook.md)
 
 ## Troubleshooting
 
-**Something not working?** Check [Troubleshooting Guide](docs/troubleshooting.md)
+**Something not working?** Check [Troubleshooting Guide](docs/v0/troubleshooting.md)
 
 Common issues:
 - **VMs not booting**: See VM Issues section
@@ -238,10 +238,10 @@ Common issues:
 
 ## Support
 
-1. **Check documentation**: Start with [Documentation Index](docs/INDEX.md)
-2. **Search troubleshooting**: [Troubleshooting Guide](docs/troubleshooting.md)
+1. **Check documentation**: Start with [Documentation Index](docs/v0/INDEX.md)
+2. **Search troubleshooting**: [Troubleshooting Guide](docs/v0/troubleshooting.md)
 3. **Review logs**: `kubectl logs`, Ansible output, Proxmox logs
-4. **Escalate**: Follow procedures in [Operations Runbook](docs/operations-runbook.md)
+4. **Escalate**: Follow procedures in [Operations Runbook](docs/v0/operations-runbook.md)
 
 ## Security
 
@@ -253,7 +253,7 @@ This infrastructure is designed with security in mind:
 - ✅ **Encryption**: TLS for external communications, sealed-secrets for credentials
 - ✅ **Auditability**: Terraform/Git history, Kubernetes audit logs
 
-**Security details:** See [Network Design](docs/network-design.md) and [Architecture](docs/architecture.md)
+**Security details:** See [Network Design](docs/v0/network-design.md) and [Architecture](docs/v0/architecture.md)
 
 ## Maintenance
 
@@ -273,7 +273,7 @@ This infrastructure is designed with security in mind:
 - Update documentation
 - Plan capacity needs
 
-**Full maintenance schedule:** [Operations Runbook](docs/operations-runbook.md)
+**Full maintenance schedule:** [Operations Runbook](docs/v0/operations-runbook.md)
 
 ## Disaster Recovery
 
@@ -284,7 +284,7 @@ Complete recovery from state loss is possible because:
 3. **Applications are code**: ArgoCD redeploys from Git
 4. **Cluster state is backed up**: Etcd snapshots enable point-in-time recovery
 
-**Recovery procedures:** [Operations Runbook](docs/operations-runbook.md) → Disaster Recovery
+**Recovery procedures:** [Operations Runbook](docs/v0/operations-runbook.md) → Disaster Recovery
 
 ## Contributing
 
@@ -334,6 +334,6 @@ Created by: [Your Name/Team]
 
 ---
 
-**Questions?** Check [Documentation Index](docs/INDEX.md)
+**Questions?** Check [Documentation Index](docs/v0/INDEX.md)
 
-**Ready to deploy?** Start with [Quick Start](docs/quick-start.md)
+**Ready to deploy?** Start with [Quick Start](docs/v0/quick-start.md)
