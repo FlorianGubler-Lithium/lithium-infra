@@ -53,9 +53,9 @@ users:
     groups: sudo,docker,wheel
     shell: /bin/bash
     lock_passwd: false
-    passwd: "${vm_password}"
+    passwd: ${vm_password}
     ssh_authorized_keys:
-      - "${ssh_public_key}"
+      - ${ssh_public_key}
 
 # Set root password
 chpasswd:
