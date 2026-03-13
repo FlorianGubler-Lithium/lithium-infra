@@ -88,7 +88,7 @@ resource "proxmox_virtual_environment_sdn_applier" "sdn_applier" {
 ##########################
 
 resource "proxmox_virtual_environment_download_file" "debian_cloud_image" {
-  node_name = "pve"
+  node_name = var.pm_node
   datastore_id = "local"
 
   content_type = "import"
@@ -101,7 +101,7 @@ resource "proxmox_virtual_environment_download_file" "debian_cloud_image" {
 #########################
 
 resource "proxmox_virtual_environment_file" "cloud_config_firewall" {
-  node_name    = "pve1"
+  node_name = var.pm_node
   datastore_id = "local"
 
   content_type = "snippets"
@@ -113,7 +113,7 @@ resource "proxmox_virtual_environment_file" "cloud_config_firewall" {
 }
 
 resource "proxmox_virtual_environment_file" "cloud_config" {
-  node_name    = "pve1"
+  node_name = var.pm_node
   datastore_id = "local"
 
   content_type = "snippets"
