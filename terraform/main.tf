@@ -13,6 +13,15 @@ provider "proxmox" {
   insecure = true
 }
 
+resource "proxmox_virtual_environment_download_file" "debian_cloud_image" {
+  node_name = "pve1"
+  datastore_id = "local"
+
+  content_type = "iso"
+  url = "https://cloud.debian.org/images/cloud/bookworm/latest/debian-13-genericcloud-amd64.qcow2"
+  file_name = "debian-12-cloud.qcow2"
+}
+
 #########################
 # Network Zones (VLAN)
 #########################
@@ -66,14 +75,28 @@ locals {
 # Cloud-init Templates
 #########################
 
-locals {
-  # Firewall cloud-init template
-  firewall_cloud_init = base64encode(templatefile("${path.module}/firewall-cloud-init.yaml", {
-    hostname       = "cluster-firewall"
-    ssh_public_key = var.ssh_public_key
-    vm_password    = var.vm_password
-    dns_servers    = join(" ", var.dns_servers)
-  }))
+resource "proxmox_virtual_environment_file" "cloud_config_firewall" {
+  node_name    = "pve1"
+  datastore_id = "local"
+
+  content_type = "snippets"
+
+  source_raw {
+    file_name = "firewall-cloud-init.yaml"
+    data = file("${path.module}/firewall-cloud-init.yaml")
+  }
+}
+
+resource "proxmox_virtual_environment_file" "cloud_config" {
+  node_name    = "pve1"
+  datastore_id = "local"
+
+  content_type = "snippets"
+
+  source_raw {
+    file_name = "cloud-init.yaml"
+    data = file("${path.module}/cloud-init.yaml")
+  }
 }
 
 #########################
@@ -91,7 +114,7 @@ resource "proxmox_virtual_machine" "firewall" {
   }
 
   initialization {
-    user_data_base64 = local.firewall_cloud_init
+    user_data_file_id = proxmox_virtual_environment_file.cloud_config_firewall.id
   }
 
   boot_order = ["ide2", "scsi0"]
@@ -104,20 +127,11 @@ resource "proxmox_virtual_machine" "firewall" {
     cores = 2
   }
 
-  cdrom {
-    enabled = true
-    file_id = var.debian_iso
-  }
-
-  scsi_hardware = "virtio-scsi-pci"
-
   disk {
-    interface       = "scsi0"
-    iothread        = true
-    ssd             = false
-    file_format     = "raw"
-    size            = 50
-    datastore_id    = "local-lvm"
+    datastore_id = "local-lvm"
+    file_id      = proxmox_virtual_environment_download_file.debian_cloud_image.id
+    interface    = "scsi0"
+    size         = 20
   }
 
   # Management interface
@@ -166,43 +180,6 @@ locals {
     proxy-001 = { zone = "infrazone", role = "proxy" }
     mgmt-001 = { zone = "infrazone", role = "mgmt" }
   }
-
-  # Re-generate cloud-init templates now that VM definitions are available
-  dev_cloud_init = {
-    for name in keys(local.dev_vms) :
-    name => base64encode(templatefile("${path.module}/vm-cloud-init.yaml", {
-      hostname       = name
-      ssh_public_key = var.ssh_public_key
-      vm_password    = var.vm_password
-      dns_servers    = join(" ", var.dns_servers)
-      static_ip      = local.vm_ips[name]
-      gateway_ip     = local.zones.devzone.gateway
-    }))
-  }
-
-  prod_cloud_init = {
-    for name in keys(local.prod_vms) :
-    name => base64encode(templatefile("${path.module}/vm-cloud-init.yaml", {
-      hostname       = name
-      ssh_public_key = var.ssh_public_key
-      vm_password    = var.vm_password
-      dns_servers    = join(" ", var.dns_servers)
-      static_ip      = local.vm_ips[name]
-      gateway_ip     = local.zones.prodzone.gateway
-    }))
-  }
-
-  infra_cloud_init = {
-    for name in keys(local.infra_vms) :
-    name => base64encode(templatefile("${path.module}/vm-cloud-init.yaml", {
-      hostname       = name
-      ssh_public_key = var.ssh_public_key
-      vm_password    = var.vm_password
-      dns_servers    = join(" ", var.dns_servers)
-      static_ip      = local.vm_ips[name]
-      gateway_ip     = local.zones.infrazone.gateway
-    }))
-  }
 }
 
 resource "proxmox_virtual_machine" "dev_vms" {
@@ -218,7 +195,7 @@ resource "proxmox_virtual_machine" "dev_vms" {
   }
 
   initialization {
-    user_data_base64 = local.dev_cloud_init[each.key]
+    user_data_file_id = proxmox_virtual_environment_file.cloud_config.id
   }
 
   boot_order = ["ide2", "scsi0"]
@@ -231,20 +208,11 @@ resource "proxmox_virtual_machine" "dev_vms" {
     cores = 2
   }
 
-  cdrom {
-    enabled = true
-    file_id = var.debian_iso
-  }
-
-  scsi_hardware = "virtio-scsi-pci"
-
   disk {
-    interface       = "scsi0"
-    iothread        = true
-    ssd             = false
-    file_format     = "raw"
-    size            = 50
-    datastore_id    = "local-lvm"
+    datastore_id = "local-lvm"
+    file_id      = proxmox_virtual_environment_download_file.debian_cloud_image.id
+    interface    = "scsi0"
+    size         = 20
   }
 
   network_device {
@@ -267,7 +235,7 @@ resource "proxmox_virtual_machine" "prod_vms" {
   }
 
   initialization {
-    user_data_base64 = local.prod_cloud_init[each.key]
+    user_data_file_id = proxmox_virtual_environment_file.cloud_config.id
   }
 
   boot_order = ["ide2", "scsi0"]
@@ -280,20 +248,11 @@ resource "proxmox_virtual_machine" "prod_vms" {
     cores = 2
   }
 
-  cdrom {
-    enabled = true
-    file_id = var.debian_iso
-  }
-
-  scsi_hardware = "virtio-scsi-pci"
-
   disk {
-    interface       = "scsi0"
-    iothread        = true
-    ssd             = false
-    file_format     = "raw"
-    size            = 50
-    datastore_id    = "local-lvm"
+    datastore_id = "local-lvm"
+    file_id      = proxmox_virtual_environment_download_file.debian_cloud_image.id
+    interface    = "scsi0"
+    size         = 20
   }
 
   network_device {
@@ -329,20 +288,11 @@ resource "proxmox_virtual_machine" "infra_vms" {
     cores = 2
   }
 
-  cdrom {
-    enabled = true
-    file_id = var.debian_iso
-  }
-
-  scsi_hardware = "virtio-scsi-pci"
-
   disk {
-    interface       = "scsi0"
-    iothread        = true
-    ssd             = false
-    file_format     = "raw"
-    size            = 50
-    datastore_id    = "local-lvm"
+    datastore_id = "local-lvm"
+    file_id      = proxmox_virtual_environment_download_file.debian_cloud_image.id
+    interface    = "scsi0"
+    size         = 20
   }
 
   network_device {
