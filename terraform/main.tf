@@ -103,7 +103,7 @@ resource "proxmox_virtual_environment_file" "cloud_config" {
 # Firewall Router VM
 #########################
 
-resource "proxmox_virtual_machine" "firewall" {
+resource "proxmox_virtual_environment_vm" "firewall" {
 
   name      = "cluster-firewall"
   node_name = var.pm_node
@@ -182,7 +182,7 @@ locals {
   }
 }
 
-resource "proxmox_virtual_machine" "dev_vms" {
+resource "proxmox_virtual_environment_vm" "dev_vms" {
 
   for_each = local.dev_vms
 
@@ -222,7 +222,7 @@ resource "proxmox_virtual_machine" "dev_vms" {
 
 }
 
-resource "proxmox_virtual_machine" "prod_vms" {
+resource "proxmox_virtual_environment_vm" "prod_vms" {
 
   for_each = local.prod_vms
 
@@ -262,7 +262,7 @@ resource "proxmox_virtual_machine" "prod_vms" {
 
 }
 
-resource "proxmox_virtual_machine" "infra_vms" {
+resource "proxmox_virtual_environment_vm" "infra_vms" {
 
   for_each = local.infra_vms
 
@@ -275,7 +275,7 @@ resource "proxmox_virtual_machine" "infra_vms" {
   }
 
   initialization {
-    user_data_base64 = local.infra_cloud_init[each.key]
+    user_data_file_id = proxmox_virtual_environment_file.cloud_config.id
   }
 
   boot_order = ["ide2", "scsi0"]
