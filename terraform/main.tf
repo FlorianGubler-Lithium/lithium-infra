@@ -1,17 +1,16 @@
 terraform {
   required_providers {
     proxmox = {
-      source  = "Telmate/proxmox"
-      version = "3.0.2-rc07"
+      source  = "bpg/proxmox"
+      version = "0.98.1"
     }
   }
 }
 
 provider "proxmox" {
-  pm_api_url          = var.pm_api_url
-  pm_api_token_id     = "terraform@pam!terraform-access"
-  pm_api_token_secret = var.pm_api_token_secret
-  pm_tls_insecure     = true
+  endpoint = var.pm_api_url
+  api_token = "${var.pm_api_token_id}:${var.pm_api_token_secret}"
+  insecure = true
 }
 
 #########################
@@ -81,70 +80,69 @@ locals {
 # Firewall Router VM
 #########################
 
-resource "proxmox_vm_qemu" "firewall" {
+resource "proxmox_virtual_machine" "firewall" {
 
-  name        = "cluster-firewall"
-  target_node = var.pm_node
+  name      = "cluster-firewall"
+  node_name = var.pm_node
+  vm_id     = 100
 
-  vmid   = 100
-  memory = 4096
+  memory {
+    dedicated = 4096
+  }
 
-  boot = "order=ide2;scsi0"
+  initialization {
+    user_data_base64 = local.firewall_cloud_init
+  }
 
-  agent = 1
+  boot_order = ["ide2", "scsi0"]
+
+  agent {
+    enabled = true
+  }
 
   cpu {
     cores = 2
   }
 
-  disks {
-    ide {
-      ide2 {
-        cdrom {
-          iso = var.debian_iso
-        }
-      }
-    }
-    scsi {
-      scsi0 {
-        disk {
-          storage = "local-lvm"
-          size    = 50
-          format  = "raw"
-        }
-      }
-    }
+  cdrom {
+    enabled = true
+    file_id = var.debian_iso
+  }
+
+  scsi_hardware = "virtio-scsi-pci"
+
+  disk {
+    interface       = "scsi0"
+    iothread        = true
+    ssd             = false
+    file_format     = "raw"
+    size            = 50
+    datastore_id    = "local-lvm"
   }
 
   # Management interface
-  network {
-    id     = 0
+  network_device {
     bridge = "vmbr0"
     model  = "virtio"
   }
 
   # Dev zone interface
-  network {
-    id    = 1
-    bridge  = "dev"
-    model = "virtio"
+  network_device {
+    bridge = "dev"
+    model  = "virtio"
   }
 
   # Prod zone interface
-  network {
-    id    = 2
-    bridge  = "prod"
-    model = "virtio"
+  network_device {
+    bridge = "prod"
+    model  = "virtio"
   }
 
   # Infra zone interface
-  network {
-    id    = 3
-    bridge  = "infra"
-    model = "virtio"
+  network_device {
+    bridge = "infra"
+    model  = "virtio"
   }
-
-  cicustom = "user=local:snippets/firewall-user-data.yaml"
 }
 
 ############################
@@ -207,144 +205,150 @@ locals {
   }
 }
 
-resource "proxmox_vm_qemu" "dev_vms" {
+resource "proxmox_virtual_machine" "dev_vms" {
 
   for_each = local.dev_vms
 
-  name        = each.key
-  target_node = var.pm_node
+  name      = each.key
+  node_name = var.pm_node
+  vm_id     = 1000 + index(sort(keys(local.dev_vms)), each.key)
 
-  vmid   = 1000 + index(sort(keys(local.dev_vms)), each.key)
-  memory = 4096
+  memory {
+    dedicated = 4096
+  }
 
-  boot = "order=ide2;scsi0"
+  initialization {
+    user_data_base64 = local.dev_cloud_init[each.key]
+  }
 
-  agent = 1
+  boot_order = ["ide2", "scsi0"]
+
+  agent {
+    enabled = true
+  }
 
   cpu {
     cores = 2
   }
 
-  disks {
-    ide {
-      ide2 {
-        cdrom {
-          iso = var.debian_iso
-        }
-      }
-    }
-    scsi {
-      scsi0 {
-        disk {
-          storage = "local-lvm"
-          size    = 50
-          format  = "raw"
-        }
-      }
-    }
+  cdrom {
+    enabled = true
+    file_id = var.debian_iso
   }
 
-  network {
-    id    = 0
-    model = "virtio"
-    bridge  = "dev"
+  scsi_hardware = "virtio-scsi-pci"
+
+  disk {
+    interface       = "scsi0"
+    iothread        = true
+    ssd             = false
+    file_format     = "raw"
+    size            = 50
+    datastore_id    = "local-lvm"
   }
 
-  cicustom = "user=local:snippets/${each.key}-user-data.yaml"
+  network_device {
+    bridge = "dev"
+    model  = "virtio"
+  }
 
 }
 
-resource "proxmox_vm_qemu" "prod_vms" {
+resource "proxmox_virtual_machine" "prod_vms" {
 
   for_each = local.prod_vms
 
-  name        = each.key
-  target_node = var.pm_node
+  name      = each.key
+  node_name = var.pm_node
+  vm_id     = 2000 + index(sort(keys(local.prod_vms)), each.key)
 
-  vmid   = 2000 + index(sort(keys(local.prod_vms)), each.key)
-  memory = 4096
+  memory {
+    dedicated = 4096
+  }
 
-  boot = "order=ide2;scsi0"
+  initialization {
+    user_data_base64 = local.prod_cloud_init[each.key]
+  }
 
-  agent = 1
+  boot_order = ["ide2", "scsi0"]
+
+  agent {
+    enabled = true
+  }
 
   cpu {
     cores = 2
   }
 
-  disks {
-    ide {
-      ide2 {
-        cdrom {
-          iso = var.debian_iso
-        }
-      }
-    }
-    scsi {
-      scsi0 {
-        disk {
-          storage = "local-lvm"
-          size    = 50
-          format  = "raw"
-        }
-      }
-    }
+  cdrom {
+    enabled = true
+    file_id = var.debian_iso
   }
 
-  network {
-    id    = 0
-    model = "virtio"
-    bridge  = "prod"
+  scsi_hardware = "virtio-scsi-pci"
+
+  disk {
+    interface       = "scsi0"
+    iothread        = true
+    ssd             = false
+    file_format     = "raw"
+    size            = 50
+    datastore_id    = "local-lvm"
   }
 
-  cicustom = "user=local:snippets/${each.key}-user-data.yaml"
+  network_device {
+    bridge = "prod"
+    model  = "virtio"
+  }
 
 }
 
-resource "proxmox_vm_qemu" "infra_vms" {
+resource "proxmox_virtual_machine" "infra_vms" {
 
   for_each = local.infra_vms
 
-  name        = each.key
-  target_node = var.pm_node
+  name      = each.key
+  node_name = var.pm_node
+  vm_id     = 3000 + index(sort(keys(local.infra_vms)), each.key)
 
-  vmid   = 3000 + index(sort(keys(local.infra_vms)), each.key)
-  memory = 4096
+  memory {
+    dedicated = 4096
+  }
 
-  boot = "order=ide2;scsi0"
+  initialization {
+    user_data_base64 = local.infra_cloud_init[each.key]
+  }
 
-  agent = 1
+  boot_order = ["ide2", "scsi0"]
+
+  agent {
+    enabled = true
+  }
 
   cpu {
     cores = 2
   }
 
-  disks {
-    ide {
-      ide2 {
-        cdrom {
-          iso = var.debian_iso
-        }
-      }
-    }
-    scsi {
-      scsi0 {
-        disk {
-          storage = "local-lvm"
-          size    = 50
-          format  = "raw"
-        }
-      }
-    }
+  cdrom {
+    enabled = true
+    file_id = var.debian_iso
   }
 
-  network {
-    id    = 0
-    model = "virtio"
-    bridge  = "infra"
+  scsi_hardware = "virtio-scsi-pci"
+
+  disk {
+    interface       = "scsi0"
+    iothread        = true
+    ssd             = false
+    file_format     = "raw"
+    size            = 50
+    datastore_id    = "local-lvm"
   }
 
-  cicustom = "user=local:snippets/${each.key}-user-data.yaml"
+  network_device {
+    bridge = "infra"
+    model  = "virtio"
+  }
 
 }
 

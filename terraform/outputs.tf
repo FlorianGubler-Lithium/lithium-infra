@@ -6,12 +6,12 @@
 
 output "firewall_vmid" {
   description = "Firewall VM ID"
-  value       = proxmox_vm_qemu.firewall.vmid
+  value       = proxmox_virtual_machine.firewall.vm_id
 }
 
 output "firewall_name" {
   description = "Firewall VM hostname"
-  value       = proxmox_vm_qemu.firewall.name
+  value       = proxmox_virtual_machine.firewall.name
 }
 
 #########################
@@ -21,8 +21,8 @@ output "firewall_name" {
 output "dev_vms" {
   description = "Dev zone VM details"
   value = {
-    for name, vm in proxmox_vm_qemu.dev_vms : name => {
-      vmid   = vm.vmid
+    for name, vm in proxmox_virtual_machine.dev_vms : name => {
+      vmid   = vm.vm_id
       name   = vm.name
       zone   = local.dev_vms[name].zone
       role   = local.dev_vms[name].role
@@ -39,8 +39,8 @@ output "dev_vms" {
 output "prod_vms" {
   description = "Prod zone VM details"
   value = {
-    for name, vm in proxmox_vm_qemu.prod_vms : name => {
-      vmid   = vm.vmid
+    for name, vm in proxmox_virtual_machine.prod_vms : name => {
+      vmid   = vm.vm_id
       name   = vm.name
       zone   = local.prod_vms[name].zone
       role   = local.prod_vms[name].role
@@ -57,8 +57,8 @@ output "prod_vms" {
 output "infra_vms" {
   description = "Infra zone VM details"
   value = {
-    for name, vm in proxmox_vm_qemu.infra_vms : name => {
-      vmid   = vm.vmid
+    for name, vm in proxmox_virtual_machine.infra_vms : name => {
+      vmid   = vm.vm_id
       name   = vm.name
       zone   = local.infra_vms[name].zone
       role   = local.infra_vms[name].role
@@ -85,12 +85,12 @@ output "inventory" {
   description = "Ansible inventory in INI format"
   value = templatefile("${path.module}/inventory.tpl", {
     firewall = {
-      vmid = proxmox_vm_qemu.firewall.vmid
-      name = proxmox_vm_qemu.firewall.name
+      vmid = proxmox_virtual_machine.firewall.vm_id
+      name = proxmox_virtual_machine.firewall.name
     }
-    dev_vms  = { for name, vm in proxmox_vm_qemu.dev_vms : name => { vmid = vm.vmid, role = local.dev_vms[name].role } }
-    prod_vms = { for name, vm in proxmox_vm_qemu.prod_vms : name => { vmid = vm.vmid, role = local.prod_vms[name].role } }
-    infra_vms = { for name, vm in proxmox_vm_qemu.infra_vms : name => { vmid = vm.vmid, role = local.infra_vms[name].role } }
+    dev_vms  = { for name, vm in proxmox_virtual_machine.dev_vms : name => { vmid = vm.vm_id, role = local.dev_vms[name].role } }
+    prod_vms = { for name, vm in proxmox_virtual_machine.prod_vms : name => { vmid = vm.vm_id, role = local.prod_vms[name].role } }
+    infra_vms = { for name, vm in proxmox_virtual_machine.infra_vms : name => { vmid = vm.vm_id, role = local.infra_vms[name].role } }
   })
 }
 

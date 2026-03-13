@@ -3,6 +3,12 @@ variable "pm_api_url" {
   description = "Proxmox API URL"
 }
 
+variable "pm_api_token_id" {
+  type        = string
+  description = "Proxmox API token ID (e.g., terraform@pam!terraform-access)"
+  default     = "terraform@pam!terraform-access"
+}
+
 variable "pm_api_token_secret" {
   type        = string
   sensitive   = true
