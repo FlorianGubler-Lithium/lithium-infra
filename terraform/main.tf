@@ -13,15 +13,6 @@ provider "proxmox" {
   insecure = true
 }
 
-resource "proxmox_virtual_environment_download_file" "debian_cloud_image" {
-  node_name = "pve1"
-  datastore_id = "local"
-
-  content_type = "iso"
-  url = "https://cloud.debian.org/images/cloud/bookworm/latest/debian-13-genericcloud-amd64.qcow2"
-  file_name = "debian-12-cloud.qcow2"
-}
-
 resource "proxmox_virtual_environment_sdn_applier" "finalizer" {
 }
 
@@ -90,6 +81,19 @@ resource "proxmox_virtual_environment_sdn_applier" "sdn_applier" {
       proxmox_virtual_environment_sdn_vnet.infra,
     ]
   }
+}
+
+##########################
+# Download Cloud Images to Proxmox Storage
+##########################
+
+resource "proxmox_virtual_environment_download_file" "debian_cloud_image" {
+  node_name = "pve"
+  datastore_id = "local"
+
+  content_type = "import"
+  url = "https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
+  file_name = "debian-13-cloud.qcow2"
 }
 
 #########################
