@@ -51,7 +51,7 @@ users:
     groups: sudo,docker,wheel
     shell: /bin/bash
     lock_passwd: false
-    passwd: "${vm_password}"
+    plain_text_passwd: "${vm_password}"
     ssh_authorized_keys:
       - "${ssh_public_key}"
 
@@ -60,16 +60,6 @@ chpasswd:
   list: |
     root:${vm_password}
   expire: false
-
-# Network configuration with static IP
-network:
-  version: 2
-  ethernets:
-    eth0:
-      addresses:
-        - ${static_ip}/24
-      gateway4: ${gateway_ip}
-      dhcp4: false
 
 # Configure DNS
 resolv_conf:
