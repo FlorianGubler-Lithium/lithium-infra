@@ -37,6 +37,7 @@ packages:
   - ca-certificates
   - gnupg
   - apt-transport-https
+  - qemu-guest-agent
 
 # Configure SSH
 ssh:
@@ -65,6 +66,11 @@ chpasswd:
 resolv_conf:
   nameservers: [${dns_servers}]
   searchdomains: []
+
+# Run commands to ensure qemu-guest-agent is enabled and running
+runcmd:
+  - systemctl enable qemu-guest-agent
+  - systemctl start qemu-guest-agent
 
 # Final message
 final_message: "System booted successfully. Instance uptime: $UPTIME seconds"
