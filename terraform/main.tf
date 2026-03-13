@@ -41,8 +41,6 @@ resource "proxmox_virtual_environment_sdn_vnet" "dev" {
   id       = "dev"
   vlanid     = 100
 
-  comment = "Development Virtual Network"
-
   depends_on = [proxmox_virtual_environment_sdn_zone_vlan.backend]
 }
 
@@ -51,8 +49,6 @@ resource "proxmox_virtual_environment_sdn_vnet" "prod" {
   id       = "prod"
   vlanid     = 200
 
-  comment = "Production Virtual Network"
-
   depends_on = [proxmox_virtual_environment_sdn_zone_vlan.backend]
 }
 
@@ -60,8 +56,6 @@ resource "proxmox_virtual_environment_sdn_vnet" "infra" {
   zone       = proxmox_virtual_environment_sdn_zone_vlan.backend.id
   id       = "infra"
   vlanid     = 300
-
-  comment = "Infrastructure Virtual Network"
 
   depends_on = [proxmox_virtual_environment_sdn_zone_vlan.backend]
 }
