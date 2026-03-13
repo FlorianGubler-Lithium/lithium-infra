@@ -65,7 +65,7 @@ output "firewall_name" {
 #
 # output "inventory" {
 #   description = "Ansible inventory in INI format"
-#   value = templatefile("${path.module}/inventory.tpl", {
+#   value = templatefile("${path.module}/output/inventory.tpl", {
 #     firewall = {
 #       vmid = proxmox_virtual_environment_vm.firewall.vm_id
 #       name = proxmox_virtual_environment_vm.firewall.name

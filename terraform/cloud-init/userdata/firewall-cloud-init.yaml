@@ -35,32 +35,6 @@ chpasswd:
     root:${vm_password}
   expire: false
 
-# Network configuration with static IPs on all interfaces
-network:
-  version: 2
-  renderer: networkd
-  ethernets:
-    # Management interface (DHCP) - ens18
-    ens18:
-      dhcp4: true
-      dhcp4-overrides:
-        use-dns: true
-        use-ntp: true
-    # Dev zone interface (10.10.0.1/24) - ens19
-    ens19:
-      addresses:
-        - 10.10.0.1/24
-      dhcp4: false
-    # Prod zone interface (10.20.0.1/24) - ens20
-    ens20:
-      addresses:
-        - 10.20.0.1/24
-      dhcp4: false
-    # Infra zone interface (10.30.0.1/24) - ens21
-    ens21:
-      addresses:
-        - 10.30.0.1/24
-      dhcp4: false
 
 # Configure DNS
 resolv_conf:
@@ -99,8 +73,6 @@ ssh:
 bootcmd:
   - echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
   - sysctl -p
-  - netplan apply
-  - sleep 2              # Wait for network to stabilize
 
 # Run commands to set up NAT rules and apply network config
 runcmd:
