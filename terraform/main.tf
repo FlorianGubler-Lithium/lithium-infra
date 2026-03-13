@@ -39,7 +39,7 @@ resource "proxmox_virtual_environment_sdn_zone_vlan" "backend" {
 resource "proxmox_virtual_environment_sdn_vnet" "dev" {
   zone       = proxmox_virtual_environment_sdn_zone_vlan.backend.id
   id       = "dev"
-  vlanid     = 100
+  tag     = 100
 
   depends_on = [proxmox_virtual_environment_sdn_zone_vlan.backend]
 }
@@ -47,7 +47,7 @@ resource "proxmox_virtual_environment_sdn_vnet" "dev" {
 resource "proxmox_virtual_environment_sdn_vnet" "prod" {
   zone       = proxmox_virtual_environment_sdn_zone_vlan.backend.id
   id       = "prod"
-  vlanid     = 200
+  tag     = 200
 
   depends_on = [proxmox_virtual_environment_sdn_zone_vlan.backend]
 }
@@ -55,7 +55,7 @@ resource "proxmox_virtual_environment_sdn_vnet" "prod" {
 resource "proxmox_virtual_environment_sdn_vnet" "infra" {
   zone       = proxmox_virtual_environment_sdn_zone_vlan.backend.id
   id       = "infra"
-  vlanid     = 300
+  tag     = 300
 
   depends_on = [proxmox_virtual_environment_sdn_zone_vlan.backend]
 }
