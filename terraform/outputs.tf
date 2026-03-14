@@ -1,31 +1,66 @@
 # Terraform Outputs for Kubernetes Infrastructure
 
 #########################
+# Proxy VM Outputs
+#########################
+
+output "proxy_001" {
+  description = "Proxy VM details"
+  value = {
+    vmid = module.proxy_001.vm.vm_id
+    name = module.proxy_001.vm.name
+  }
+}
+
+#########################
 # Firewall VM Outputs
 #########################
 
-output "firewall_vmid" {
-  description = "Firewall VM ID"
-  value       = proxmox_virtual_environment_vm.firewall.vm_id
+output "firewall_001" {
+  description = "Firewall VM details"
+  value = {
+    vmid = module.firewall_001.vm.vm_id
+    name = module.firewall_001.vm.name
+  }
 }
 
-output "firewall_name" {
-  description = "Firewall VM hostname"
-  value       = proxmox_virtual_environment_vm.firewall.name
-}
+#########################
+# Jump VM Outputs
+#########################
 
+# output "jump_001" {
+#   description = "Jump VM details"
+#   value = {
+#     vmid = module.jump_001.vm.vm_id
+#     name = module.jump_001.vm.name
+#   }
+# }
+#
 # #########################
 # # Dev Zone VM Outputs
 # #########################
 #
-# output "dev_vms" {
-#   description = "Dev zone VM details"
+# output "kube_dev_master_001" {
+#   description = "Kubernetes Dev Master VM details"
 #   value = {
-#     for name, vm in proxmox_virtual_environment_vm.dev_vms : name => {
-#       vmid   = vm.vm_id
-#       name   = vm.name
-#       role   = local.dev_vms[name].role
-#     }
+#     vmid = module.kube_dev_master_001.vm.vm_id
+#     name = module.kube_dev_master_001.vm.name
+#   }
+# }
+#
+# output "kube_dev_worker_001" {
+#   description = "Kubernetes Dev Worker VM details"
+#   value = {
+#     vmid = module.kube_dev_worker_001.vm.vm_id
+#     name = module.kube_dev_worker_001.vm.name
+#   }
+# }
+#
+# output "mgmt_dev_001" {
+#   description = "Management Dev VM details"
+#   value = {
+#     vmid = module.mgmt_dev_001.vm.vm_id
+#     name = module.mgmt_dev_001.vm.name
 #   }
 # }
 #
@@ -33,66 +68,81 @@ output "firewall_name" {
 # # Prod Zone VM Outputs
 # #########################
 #
-# output "prod_vms" {
-#   description = "Prod zone VM details"
+# output "kube_prod_master_001" {
+#   description = "Kubernetes Prod Master VM details"
 #   value = {
-#     for name, vm in proxmox_virtual_environment_vm.prod_vms : name => {
-#       vmid   = vm.vm_id
-#       name   = vm.name
-#       role   = local.prod_vms[name].role
-#     }
+#     vmid = module.kube_prod_master_001.vm.vm_id
+#     name = module.kube_prod_master_001.vm.name
+#   }
+# }
+#
+# output "kube_prod_worker_001" {
+#   description = "Kubernetes Prod Worker VM details"
+#   value = {
+#     vmid = module.kube_prod_worker_001.vm.vm_id
+#     name = module.kube_prod_worker_001.vm.name
+#   }
+# }
+#
+# output "mgmt_prod_001" {
+#   description = "Management Prod VM details"
+#   value = {
+#     vmid = module.mgmt_prod_001.vm.vm_id
+#     name = module.mgmt_prod_001.vm.name
 #   }
 # }
 #
 # #########################
-# # Infra Zone VM Outputs
+# # All VMs Summary
 # #########################
 #
-# output "infra_vms" {
-#   description = "Infra zone VM details"
+# output "all_vms" {
+#   description = "Summary of all deployed VMs"
 #   value = {
-#     for name, vm in proxmox_virtual_environment_vm.infra_vms : name => {
-#       vmid   = vm.vm_id
-#       name   = vm.name
-#       role   = local.infra_vms[name].role
+#     infra = {
+#       proxy_001 = {
+#         vmid = module.proxy_001.vm.vm_id
+#         name = module.proxy_001.vm.name
+#       }
 #     }
-#   }
-# }
-#
-# #########################
-# # Ansible Inventory Output
-# #########################
-#
-# output "inventory" {
-#   description = "Ansible inventory in INI format"
-#   value = templatefile("${path.module}/output/inventory.tpl", {
 #     firewall = {
-#       vmid = proxmox_virtual_environment_vm.firewall.vm_id
-#       name = proxmox_virtual_environment_vm.firewall.name
+#       firewall_001 = {
+#         vmid = module.firewall_001.vm.vm_id
+#         name = module.firewall_001.vm.name
+#       }
 #     }
-#     dev_vms  = { for name, vm in proxmox_virtual_environment_vm.dev_vms : name => { vmid = vm.vm_id, role = local.dev_vms[name].role } }
-#     prod_vms = { for name, vm in proxmox_virtual_environment_vm.prod_vms : name => { vmid = vm.vm_id, role = local.prod_vms[name].role } }
-#     infra_vms = { for name, vm in proxmox_virtual_environment_vm.infra_vms : name => { vmid = vm.vm_id, role = local.infra_vms[name].role } }
-#   })
-# }
-#
-# #########################
-# # Summary Output
-# #########################
-#
-# output "deployment_summary" {
-#   description = "Summary of deployed infrastructure"
-#   value = {
-#     total_vms = (
-#       1 +  # firewall
-#       length(local.dev_vms) +
-#       length(local.prod_vms) +
-#       length(local.infra_vms)
-#     )
-#     firewall = 1
-#     dev_vms  = length(local.dev_vms)
-#     prod_vms = length(local.prod_vms)
-#     infra_vms = length(local.infra_vms)
+#     dev = {
+#       jump = {
+#         vmid = module.jump_001.vm.vm_id
+#         name = module.jump_001.vm.name
+#       }
+#       master = {
+#         vmid = module.kube_dev_master_001.vm.vm_id
+#         name = module.kube_dev_master_001.vm.name
+#       }
+#       worker = {
+#         vmid = module.kube_dev_worker_001.vm.vm_id
+#         name = module.kube_dev_worker_001.vm.name
+#       }
+#       mgmt = {
+#         vmid = module.mgmt_dev_001.vm.vm_id
+#         name = module.mgmt_dev_001.vm.name
+#       }
+#     }
+#     prod = {
+#       master = {
+#         vmid = module.kube_prod_master_001.vm.vm_id
+#         name = module.kube_prod_master_001.vm.name
+#       }
+#       worker = {
+#         vmid = module.kube_prod_worker_001.vm.vm_id
+#         name = module.kube_prod_worker_001.vm.name
+#       }
+#       mgmt = {
+#         vmid = module.mgmt_prod_001.vm.vm_id
+#         name = module.mgmt_prod_001.vm.name
+#       }
+#     }
 #   }
 # }
-#
+# #
