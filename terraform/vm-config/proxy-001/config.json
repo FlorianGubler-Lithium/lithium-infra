@@ -1,0 +1,11 @@
+{
+  "name": "proxy-001",
+  "vm_id": 3011,
+  "memory": 4096,
+  "cpu_cores": 2,
+  "disk_size": 20,
+  "bridges": ["infra"],
+  "depends_on_vms": [],
+  "role": "proxy"
+}
+
