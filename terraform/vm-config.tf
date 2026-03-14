@@ -3,8 +3,8 @@
 ##########################
 
 locals {
-  # List of all VM subdirectories in vm-config/
-  vm_list = sort(fileset("${path.module}/vm-config", "*"))
+  # Set of all VM subdirectories in vm-config/
+  vm_list = toset(sort(fileset("${path.module}/vm-config", "*")))
 }
 
 ##########################
