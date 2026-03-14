@@ -12,6 +12,8 @@ module "proxy_001" {
   network_data_file_id = proxmox_virtual_environment_file.cloud_network_config["proxy-001"].id
 }
 
+output "debug_vm_list" { value = local.vm_list }
+
 ############################
 # Firewall VM Module
 ############################
