@@ -10,13 +10,13 @@ variable "pm_node" {
   type = string
 }
 
-variable "user_data_file_base" {
+variable "user_data_file_id" {
   type = map(object({
     id = string
   }))
 }
 
-variable "network_data_file_base" {
+variable "network_data_file_id" {
   type = map(object({
     id = string
   }))
@@ -40,8 +40,8 @@ resource "proxmox_virtual_environment_vm" "vm" {
   memory { dedicated = 4096 }
 
   initialization {
-    user_data_file_id    = var.user_data_file_base[local.vm_name].id
-    network_data_file_id = var.network_data_file_base["${local.vm_name}"].id
+    user_data_file_id    = var.user_data_file_id
+    network_data_file_id = var.network_data_file_id
   }
 
   keyboard_layout = "de-ch"
