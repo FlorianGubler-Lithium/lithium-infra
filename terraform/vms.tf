@@ -6,19 +6,22 @@ locals {
   dev_vms = {
     kube-dev-master-001 = { role = "master" }
     kube-dev-worker-001 = { role = "worker" }
-    mgmt-001 = { role = "mgmt" }
+    mgmt-dev-001 = { role = "mgmt" }
   }
 
   prod_vms = {
     kube-prod-master-001 = { role = "master" }
     kube-prod-worker-001 = { role = "worker" }
-    mgmt-001 = { role = "mgmt" }
+    mgmt-prod-001 = { role = "mgmt" }
   }
 
   infra_vms = {
+    firewall-001 = { role = "firewall" }
     jump-001 = { role = "jump" }
     proxy-001 = { role = "proxy" }
   }
+
+  all_vms = merge(local.dev_vms, local.prod_vms, local.infra_vms)
 }
 
 #########################
@@ -95,7 +98,7 @@ resource "proxmox_virtual_environment_vm" "firewall" {
 #
 #   initialization {
 #     user_data_file_id = proxmox_virtual_environment_file.cloud_config_infra[each.key].id
-#     network_data_file_id = proxmox_virtual_environment_file.network_config_infra.id
+#     network_data_file_id = proxmox_virtual_environment_file.network_config_infra[each.key].id
 #   }
 #
 #   keyboard_layout = "de-ch"

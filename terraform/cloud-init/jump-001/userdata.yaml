@@ -11,6 +11,8 @@ timezone: Europe/Zurich
 # Update system
 apt:
   preserve_sources_list: true
+  http_proxy: "http://10.30.0.11:3128"
+  https_proxy: "http://10.30.0.11:3128"
   primary:
     - arches: [amd64, i386]
       uri: "http://deb.debian.org/debian"
