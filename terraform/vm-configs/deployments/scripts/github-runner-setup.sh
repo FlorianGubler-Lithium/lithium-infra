@@ -91,7 +91,7 @@ rm "$RUNNER_FILE"
 
 # Install .NET dependencies (libicu and others)
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Installing .NET dependencies"
-if [ -f "$RUNNER_INSTALL_DIR/.bin/installdependencies.sh" ]; then
+if [ -f "$RUNNER_INSTALL_DIR/bin/installdependencies.sh" ]; then
     "$RUNNER_INSTALL_DIR/bin/installdependencies.sh"
     if [ $? -ne 0 ]; then
         echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] WARNING: Failed to install .NET dependencies, continuing anyway"
