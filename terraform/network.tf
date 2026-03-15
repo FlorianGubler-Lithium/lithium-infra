@@ -46,8 +46,8 @@ resource "proxmox_virtual_environment_sdn_subnet" "backend_dhcp_subnets" {
   gateway = each.value.gateway
 
   dhcp_range = {
-    start = cidrhost(each.value.cidr, 10)
-    end   = cidrhost(each.value.cidr, 200)
+    start_address = cidrhost(each.value.cidr, 10)
+    end_address   = cidrhost(each.value.cidr, 200)
   }
 }
 
