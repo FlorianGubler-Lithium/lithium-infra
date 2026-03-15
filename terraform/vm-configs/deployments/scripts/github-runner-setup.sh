@@ -102,7 +102,7 @@ fi
 
 # Register the runner
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Registering runner with GitHub organization"
-su - github-runner -c "cd $RUNNER_INSTALL_DIR && ./config.sh --url 'https://github.com/${GITHUB_ORG}' --token '${GITHUB_TOKEN}' --name '${RUNNER_NAME}' --runnergroup '${RUNNER_GROUP}' --work '_work' --replace --unattended"
+su - github-runner -c "cd $RUNNER_INSTALL_DIR && ./config.sh --url 'https://github.com/${GITHUB_ORG}' --token '${GITHUB_TOKEN}' --name '${RUNNER_NAME}' --runnergroup '${RUNNER_GROUP}
 
 if [ $? -ne 0 ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] ERROR: Failed to register runner"
