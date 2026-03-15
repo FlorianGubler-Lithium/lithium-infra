@@ -37,7 +37,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
   initialization {
     user_data_file_id    = proxmox_virtual_environment_file.ci_userdata.id
-    network_data_file_id = proxmox_virtual_environment_file.ci_userdata.id
+    network_data_file_id = proxmox_virtual_environment_file.ci_networkdata.id
   }
 
   keyboard_layout = "de-ch"
