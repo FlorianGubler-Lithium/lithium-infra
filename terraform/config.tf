@@ -3,6 +3,10 @@ locals {
   pm_api_url = "https://192.168.1.25:8006"
   pm_node = "prx-001"
 
+  # GitHub Runner Configuration
+  github_runner_org = ""
+  github_runner_version = "v2.332.0"
+
   # Proxmox VM Configuration
   backend_network_configurations = {
     dev = {

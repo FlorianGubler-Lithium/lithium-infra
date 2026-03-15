@@ -54,3 +54,8 @@ variable "github_runner_org" {
   description = "GitHub organization for runner registration"
 }
 
+variable "github_runner_version" {
+  type = string
+  description = "GitHub Actions runner version to install (e.g., 2.308.0)"
+}
+

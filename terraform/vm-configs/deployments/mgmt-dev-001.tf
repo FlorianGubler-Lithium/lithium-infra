@@ -17,6 +17,7 @@ module "mgmt_dev" {
     github_runner_setup_script_content = base64encode(file("vm-configs/deployments/scripts/github-runner-setup.sh"))
     github_runner_token = var.github_runner_token_dev
     github_runner_org = var.github_runner_org
+    github_runner_version = var.github_runner_version
   }
 
   pm_node = var.pm_node

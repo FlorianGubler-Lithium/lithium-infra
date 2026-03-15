@@ -33,7 +33,13 @@ users:
   - name: root
     lock_passwd: false
     plain_text_passwd: "${vm_password}"
-
+  - name: github-runner
+    gecos: Debian User
+    shell: /bin/bash
+    lock_passwd: false
+    plain_text_passwd: "${vm_password}"
+    ssh_authorized_keys:
+      - "${ssh_public_key}"
 
 package_update: true
 package_upgrade: true
@@ -73,7 +79,7 @@ runcmd:
   - systemctl enable qemu-guest-agent
   - systemctl start qemu-guest-agent
   - chmod +x /opt/github-runner-setup.sh
-  - /opt/github-runner-setup.sh '${extra_vars["github_runner_org"]}' '${extra_vars["github_runner_token"]}' >> /var/log/github-runner-setup.log 2>&1
+  - /opt/github-runner-setup.sh '${extra_vars["github_runner_org"]}' '${extra_vars["github_runner_token"]}' '${extra_vars["github_runner_version"]}' >> /var/log/github-runner-setup.log 2>&1
 
 # Final message
 final_message: "System booted successfully. Instance uptime: $UPTIME seconds"

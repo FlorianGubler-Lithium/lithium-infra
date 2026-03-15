@@ -5,6 +5,7 @@
 # Arguments:
 # - org:        GitHub organization name (required)
 # - token:      GitHub Actions runner registration token (required)
+# - version:    GitHub Actions runner version to install (required)
 # - runner_name: Custom runner name, defaults to github-runner-<hostname> (optional)
 
 set -euo pipefail
@@ -12,17 +13,19 @@ set -euo pipefail
 # Parse arguments
 if [ $# -lt 2 ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] ERROR: Insufficient arguments"
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Usage: $0 <org> <token> [runner_name]"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Usage: $0 <org> <token> <version> [runner_name]"
     exit 1
 fi
 
 GITHUB_ORG="$1"
 GITHUB_TOKEN="$2"
+GITHUB_RUNNER_VERSION="$2"
 RUNNER_NAME="${3:-github-runner-$(hostname)}"
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Starting GitHub Actions runner setup"
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Organization: $GITHUB_ORG"
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Runner name: $RUNNER_NAME"
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Runner Version: $GITHUB_RUNNER_VERSION"
 
 # Validate required arguments
 if [ -z "$GITHUB_ORG" ]; then
@@ -35,25 +38,10 @@ if [ -z "$GITHUB_TOKEN" ]; then
     exit 1
 fi
 
-# Create runner user if it doesn't exist
-if id "github-runner" &>/dev/null; then
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Runner user already exists"
-else
-    if useradd -m -s /bin/bash github-runner; then
-        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Created github-runner user"
-    fi
-fi
-
-# Change to runner home directory
-if ! cd /home/github-runner; then
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] ERROR: Could not change to runner home directory"
+if [ -z "$GITHUB_RUNNER_VERSION" ]; then
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] ERROR: GitHub runner version not provided"
     exit 1
 fi
-
-# Install prerequisites
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Installing prerequisites"
-apt-get update
-apt-get install -y curl wget ca-certificates gnupg
 
 # Determine architecture
 ARCH="$(dpkg --print-architecture)"
@@ -63,27 +51,19 @@ case "$ARCH" in
     *) echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] ERROR: Unsupported architecture: $ARCH"; exit 1 ;;
 esac
 
-# Download GitHub Actions runner
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Downloading GitHub Actions Runner"
-LATEST_VERSION=$(curl -s https://api.github.com/repos/actions/runner/releases | grep 'tag_name' | sed -E 's/.*"v([^"]+)".*/\1/' | head -n 1)
 
-if [ -z "$LATEST_VERSION" ]; then
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] ERROR: Could not determine latest runner version"
-    exit 1
-fi
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Latest version: v$GITHUB_RUNNER_VERSION"
 
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Latest version: v$LATEST_VERSION"
-
-DOWNLOAD_URL="https://github.com/actions/runner/releases/download/v${LATEST_VERSION}/actions-runner-linux-${DOWNLOAD_ARCH}-${LATEST_VERSION}.tar.gz"
+DOWNLOAD_URL="https://github.com/actions/runner/releases/download/v${GITHUB_RUNNER_VERSION}/actions-runner-linux-${DOWNLOAD_ARCH}-${GITHUB_RUNNER_VERSION}.tar.gz"
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Download URL: $DOWNLOAD_URL"
 
 curl -L -O "$DOWNLOAD_URL"
 
 # Extract runner files
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Extracting runner files"
-chown github-runner:github-runner "/home/github-runner/actions-runner-linux-${DOWNLOAD_ARCH}-${LATEST_VERSION}.tar.gz"
-su - github-runner -c "tar xzf actions-runner-linux-${DOWNLOAD_ARCH}-${LATEST_VERSION}.tar.gz"
-rm "actions-runner-linux-${DOWNLOAD_ARCH}-${LATEST_VERSION}.tar.gz"
+chown github-runner:github-runner "/home/github-runner/actions-runner-linux-${DOWNLOAD_ARCH}-${GITHUB_RUNNER_VERSION}.tar.gz"
+su - github-runner -c "tar xzf actions-runner-linux-${DOWNLOAD_ARCH}-${GITHUB_RUNNER_VERSION}.tar.gz"
+rm "actions-runner-linux-${DOWNLOAD_ARCH}-${GITHUB_RUNNER_VERSION}.tar.gz"
 
 # Register the runner
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Registering runner with GitHub organization"
