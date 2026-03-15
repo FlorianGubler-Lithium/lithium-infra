@@ -1,17 +1,17 @@
 version: 2
 renderer: networkd
 ethernets:
-  # Dev zone interface (10.10.0.1/24) - ens19
+  # Dev zone interface (10.10.0.1/24) - ens18
   ens18:
     addresses:
       - 10.10.0.1/24
     dhcp4: false
-  # Prod zone interface (10.20.0.1/24) - ens20
+  # Prod zone interface (10.20.0.1/24) - ens19
   ens19:
     addresses:
       - 10.20.0.1/24
     dhcp4: false
-  # Infra zone interface (10.30.0.1/24) - ens21
+  # Infra zone interface (10.30.0.1/24) - ens20
   ens20:
     addresses:
       - 10.30.0.1/24
