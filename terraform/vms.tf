@@ -17,7 +17,7 @@ resource "proxmox_virtual_environment_download_file" "vm_ci_base_image" {
 ############################
 
 module "infra_vms" {
-  source = "vm-configs/infra/"
+  source = "./vm-configs/infra"
 
   pm_node               = var.pm_node
   vm_ci_base_image_file_id = proxmox_virtual_environment_download_file.vm_ci_base_image.id
