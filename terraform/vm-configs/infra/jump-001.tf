@@ -15,4 +15,6 @@ module "jump_vm" {
   ssh_public_key = var.ssh_public_key
 
   pm_node = var.pm_node
+
+  depends_on = [module.proxy_vm]
 }
