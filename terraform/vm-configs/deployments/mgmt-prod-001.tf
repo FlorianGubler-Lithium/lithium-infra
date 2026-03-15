@@ -18,6 +18,7 @@ module "mgmt_prod" {
     github_runner_token = var.github_runner_token_prod
     github_runner_org = var.github_runner_org
     github_runner_version = var.github_runner_version
+    github_runner_group = "internal-prod"
   }
 
   pm_node = var.pm_node

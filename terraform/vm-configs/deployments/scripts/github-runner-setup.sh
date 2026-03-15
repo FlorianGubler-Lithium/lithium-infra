@@ -6,6 +6,7 @@
 # - org:        GitHub organization name (required)
 # - token:      GitHub Actions runner registration token (required)
 # - version:    GitHub Actions runner version to install (required)
+# - group:      GitHub Actions runner group to join (optional, defaults to "Default")
 # - runner_name: Custom runner name, defaults to github-runner-<hostname> (optional)
 
 set -euo pipefail
@@ -20,7 +21,8 @@ fi
 GITHUB_ORG="$1"
 GITHUB_TOKEN="$2"
 GITHUB_RUNNER_VERSION="$3"
-RUNNER_NAME="${4:-github-runner-$(hostname)}"
+RUNNER_NAME="${4:Default}"
+RUNNER_NAME="${5:-github-runner-$(hostname)}"
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Starting GitHub Actions runner setup"
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Organization: $GITHUB_ORG"
@@ -76,7 +78,7 @@ rm "actions-runner-linux-${DOWNLOAD_ARCH}-${GITHUB_RUNNER_VERSION}.tar.gz"
 
 # Register the runner
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Registering runner with GitHub organization"
-su - github-runner -c "cd /home/github-runner && ./config.sh --url 'https://github.com/${GITHUB_ORG}' --token '${GITHUB_TOKEN}' --name '${RUNNER_NAME}' --runnergroup 'Default' --work '_work' --replace --unattended"
+su - github-runner -c "cd /home/github-runner && ./config.sh --url 'https://github.com/${GITHUB_ORG}' --token '${GITHUB_TOKEN}' --name '${RUNNER_NAME}' --runnergroup '${RUNNER_GROUP}' --work '_work' --replace --unattended"
 
 if [ $? -ne 0 ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] ERROR: Failed to register runner"
