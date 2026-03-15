@@ -19,34 +19,39 @@ resource "proxmox_virtual_environment_sdn_zone_vlan" "backend" {
 # Virtual Networks (vnets) in Backend Zone
 #########################
 
-resource "proxmox_virtual_environment_sdn_vnet" "dev" {
+resource "proxmox_virtual_environment_sdn_vnet" "backend_vnets" {
+  for_each = {
+    for k, v in local.backend_network_configurations :
+    k => v if try(v.managed, false)
+  }
+
   zone       = proxmox_virtual_environment_sdn_zone_vlan.backend.id
-  id       = "dev"
-  tag     = 100
+  id       = each.key
+  tag     = each.value.tag
 
   depends_on = [
     proxmox_virtual_environment_sdn_applier.finalizer
   ]
 }
 
-resource "proxmox_virtual_environment_sdn_vnet" "prod" {
-  zone       = proxmox_virtual_environment_sdn_zone_vlan.backend.id
-  id       = "prod"
-  tag     = 200
+resource "proxmox_virtual_environment_sdn_subnet" "backend_dhcp_subnets" {
+  for_each = {
+    for k, v in local.backend_network_configurations :
+    k => v if try(v.managed, false)
+  }
 
-  depends_on = [
-    proxmox_virtual_environment_sdn_applier.finalizer
-  ]
-}
+  zone    = proxmox_virtual_environment_sdn_zone_vlan.backend.id
+  vnet = proxmox_virtual_environment_sdn_vnet.backend_vnets[each.key].id
 
-resource "proxmox_virtual_environment_sdn_vnet" "infra" {
-  zone       = proxmox_virtual_environment_sdn_zone_vlan.backend.id
-  id       = "infra"
-  tag     = 300
+  cidr    = each.value.cidr
+  gateway = each.value.gateway
 
-  depends_on = [
-    proxmox_virtual_environment_sdn_applier.finalizer
-  ]
+  dhcp    = true
+
+  dhcp_range = {
+    start = cidrhost(each.value.cidr, 10)
+    end   = cidrhost(each.value.cidr, 200)
+  }
 }
 
 #########################
@@ -56,17 +61,15 @@ resource "proxmox_virtual_environment_sdn_vnet" "infra" {
 resource "proxmox_virtual_environment_sdn_applier" "sdn_applier" {
   depends_on = [
     proxmox_virtual_environment_sdn_zone_vlan.backend,
-    proxmox_virtual_environment_sdn_vnet.dev,
-    proxmox_virtual_environment_sdn_vnet.prod,
-    proxmox_virtual_environment_sdn_vnet.infra,
+    proxmox_virtual_environment_sdn_vnet.backend_vnets,
+    proxmox_virtual_environment_sdn_subnet.backend_dhcp_subnets,
   ]
 
   lifecycle {
     replace_triggered_by = [
       proxmox_virtual_environment_sdn_zone_vlan.backend,
-      proxmox_virtual_environment_sdn_vnet.dev,
-      proxmox_virtual_environment_sdn_vnet.prod,
-      proxmox_virtual_environment_sdn_vnet.infra,
+      proxmox_virtual_environment_sdn_vnet.backend_vnets,
+      proxmox_virtual_environment_sdn_subnet.backend_dhcp_subnets,
     ]
   }
 }
