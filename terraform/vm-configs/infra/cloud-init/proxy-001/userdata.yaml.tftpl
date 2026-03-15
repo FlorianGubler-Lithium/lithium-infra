@@ -55,11 +55,6 @@ users:
     lock_passwd: false
     plain_text_passwd: "${vm_password}"
 
-# Configure DNS
-resolv_conf:
-  nameservers: [${dns_servers}]
-  searchdomains: []
-
 # Configure SSH
 ssh:
   emit_keys_to_console: false

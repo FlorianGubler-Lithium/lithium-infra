@@ -8,7 +8,7 @@ terraform {
 }
 
 provider "proxmox" {
-  endpoint = var.pm_api_url
+  endpoint = local.pm_api_url
   api_token = "terraform@pam!terraform-access=${var.pm_api_token_secret}"
   insecure = true
 

@@ -5,5 +5,7 @@ ethernets:
   ens18:
     dhcp4: true
     dhcp4-overrides:
-      use-dns: true
+      use-dns: false
       use-ntp: true
+    nameservers:
+      addresses: ${nameservers}

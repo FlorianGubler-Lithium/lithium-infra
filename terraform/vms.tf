@@ -3,7 +3,7 @@
 ##########################
 
 resource "proxmox_virtual_environment_download_file" "vm_ci_base_image" {
-  node_name = var.pm_node
+  node_name = local.pm_node
   datastore_id = "local"
 
   content_type = "import"
@@ -19,9 +19,10 @@ resource "proxmox_virtual_environment_download_file" "vm_ci_base_image" {
 module "infra_vms" {
   source = "./vm-configs/infra"
 
-  pm_node               = var.pm_node
+  pm_node               = local.pm_node
   vm_ci_base_image_file_id = proxmox_virtual_environment_download_file.vm_ci_base_image.id
   vm_password = var.vm_password
+  vm_nameservers = local.vm_nameservers
   ssh_public_key = var.ssh_public_key
 
   depends_on = [proxmox_virtual_environment_sdn_applier.sdn_applier]

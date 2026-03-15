@@ -24,6 +24,7 @@ resource "proxmox_virtual_environment_file" "ci_networkdata" {
       hostname       = var.vm_name
       vm_password    = var.vm_password
       ssh_public_key = var.ssh_public_key
+      nameservers    = jsonencode(var.vm_nameservers) # The cloud-init network data file expects a list of nameservers, but Terraform does not allow to directly pass a list to the template. Therefore, we encode the list as JSON and decode it in the template. See
     })
   }
 }

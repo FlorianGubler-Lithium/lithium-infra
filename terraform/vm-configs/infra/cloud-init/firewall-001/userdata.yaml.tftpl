@@ -32,11 +32,6 @@ users:
     lock_passwd: false
     plain_text_passwd: "${vm_password}"
 
-# Configure DNS
-resolv_conf:
-  nameservers: ${dns_servers}
-  searchdomains: []
-
 package_update: true
 package_upgrade: true
 package_reboot_if_required: true
