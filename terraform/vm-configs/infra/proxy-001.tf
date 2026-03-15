@@ -1,5 +1,5 @@
 module "proxy_vm" {
-  source = "../../modules/vm/"
+  source = "../../modules/init_vm/"
 
   vm_name   = "proxy-001"
   vm_id     = 3000

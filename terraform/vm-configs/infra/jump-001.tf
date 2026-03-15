@@ -1,5 +1,5 @@
-module "proxy_vm" {
-  source = "../../modules/vm/"
+module "jump_vm" {
+  source = "../../modules/init_vm/"
 
   vm_name   = "jump-001"
   vm_id     = 3010

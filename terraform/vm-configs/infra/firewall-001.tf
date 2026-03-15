@@ -1,5 +1,5 @@
 module "firewall_vm" {
-  source = "../../modules/vm/"
+  source = "../../modules/init_vm/"
 
   vm_name   = "firewall-001"
   vm_id     = 100
