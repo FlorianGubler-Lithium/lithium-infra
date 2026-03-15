@@ -11,6 +11,13 @@
 
 set -euo pipefail
 
+# Source environment variables including proxy settings
+if [ -f /etc/environment ]; then
+    set -a
+    source /etc/environment
+    set +a
+fi
+
 # Parse arguments
 if [ $# -lt 2 ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] ERROR: Insufficient arguments"
