@@ -80,9 +80,9 @@ echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Successfully download
 
 # Extract runner files
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Extracting runner files"
-chown github-runner:github-runner "/home/github-runner/actions-runner-linux-${DOWNLOAD_ARCH}-${GITHUB_RUNNER_VERSION}.tar.gz"
-su - github-runner -c "tar xzf actions-runner-linux-${DOWNLOAD_ARCH}-${GITHUB_RUNNER_VERSION}.tar.gz"
-rm "actions-runner-linux-${DOWNLOAD_ARCH}-${GITHUB_RUNNER_VERSION}.tar.gz"
+chown github-runner:github-runner "$RUNNER_FILE"
+su - github-runner -c "$RUNNER_FILE"
+rm "$RUNNER_FILE"
 
 # Register the runner
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Registering runner with GitHub organization"
