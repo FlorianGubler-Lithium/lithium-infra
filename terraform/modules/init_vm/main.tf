@@ -44,7 +44,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   keyboard_layout = "de-ch"
   boot_order      = ["ide2", "scsi0"]
 
-  agent { enabled = false }
+  agent { enabled = true }
   cpu { cores = var.vm_cpu_cores }
 
   disk {
