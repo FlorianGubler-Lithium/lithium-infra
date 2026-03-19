@@ -18,6 +18,21 @@ if [ -f /etc/environment ]; then
     set +a
 fi
 
+# Explicitly export proxy variables to ensure they're available to curl and other processes
+export http_proxy
+export https_proxy
+export HTTP_PROXY
+export HTTPS_PROXY
+export no_proxy
+
+# Debug: Show what proxy values are actually set
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] Proxy configuration:"
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] http_proxy=$http_proxy"
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] https_proxy=$https_proxy"
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] HTTP_PROXY=$HTTP_PROXY"
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] HTTPS_PROXY=$HTTPS_PROXY"
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] no_proxy=$no_proxy"
+
 # Parse arguments
 if [ $# -lt 2 ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [github-runner-setup] ERROR: Insufficient arguments"
