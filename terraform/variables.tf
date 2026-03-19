@@ -16,14 +16,8 @@ variable "ssh_public_key" {
   sensitive   = true
 }
 
-variable "github_runner_token_dev" {
+variable "github_pat" {
   type = string
-  description = "GitHub Actions runner token for dev environment"
-  sensitive = true
-}
-
-variable "github_runner_token_prod" {
-  type = string
-  description = "GitHub Actions runner token for prod environment"
+  description = "GitHub Personal Access Token for managing runners and accessing private repositories"
   sensitive = true
 }

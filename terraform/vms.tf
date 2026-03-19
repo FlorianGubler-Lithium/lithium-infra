@@ -42,6 +42,5 @@ module "deployments_vms" {
   depends_on = [proxmox_virtual_environment_sdn_applier.sdn_applier, module.infra_vms]
   github_runner_org        = local.github_runner_org
   github_runner_version    = local.github_runner_version
-  github_runner_token_dev  = var.github_runner_token_dev
-  github_runner_token_prod = var.github_runner_token_prod
+  github_pat  = var.github_pat
 }

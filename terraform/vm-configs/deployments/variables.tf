@@ -37,15 +37,9 @@ variable "k8s_pod_cidr_prod" {
   default = "172.17.0.0/16"
 }
 
-variable "github_runner_token_dev" {
+variable "github_pat" {
   type = string
-  description = "GitHub Actions runner token for dev environment"
-  sensitive = true
-}
-
-variable "github_runner_token_prod" {
-  type = string
-  description = "GitHub Actions runner token for prod environment"
+  description = "GitHub Personal Access Token with permissions to manage runners and repositories"
   sensitive = true
 }
 
