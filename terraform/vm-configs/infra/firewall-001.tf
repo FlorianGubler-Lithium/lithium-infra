@@ -10,7 +10,20 @@ module "firewall_vm" {
   vm_memory = 4096
   vm_cpu_cores = 2
   vm_disk_size = 20
-  vm_network_devices = ["dev", "prod", "infra"]
+  vm_network_devices = [
+    {
+      bridge = "dev"
+      ip     = "10.10.0.1/24"
+    },
+    {
+      bridge = "prod"
+      ip     = "10.20.0.1/24"
+    },
+    {
+      bridge = "infra"
+      ip     = "10.30.0.1/24"
+    }
+  ]
   ssh_public_key = var.ssh_public_key
 
   pm_node = var.pm_node

@@ -10,7 +10,16 @@ module "proxy_vm" {
   vm_memory = 4096
   vm_cpu_cores = 2
   vm_disk_size = 20
-  vm_network_devices = ["vmbr0", "infra"]
+  vm_network_devices = [
+    {
+      bridge = "vmbr0"
+      ip     = "192.168.1.31/24"
+    },
+    {
+      bridge = "infra"
+      ip     = "10.30.0.11/24"
+    }
+  ]
   ssh_public_key = var.ssh_public_key
 
   pm_node = var.pm_node

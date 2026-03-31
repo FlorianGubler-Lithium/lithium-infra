@@ -1,21 +1,23 @@
 version: 2
 renderer: networkd
 ethernets:
-  # External/Internet interface (DHCP) - Primary internet access
+  # External/Internet interface - ens18
   ens18:
     addresses:
-      - 192.168.1.31/24
+      - ${vm_network_devices[0].ip}
     dhcp4: false
     routes:
       - to: default
         via: 192.168.1.1
         metric: 100
-  # Infra zone interface (10.30.0.11/24)
+  # Infra zone interface - ens19
   ens19:
     addresses:
-      - 10.30.0.11/24
+      - ${vm_network_devices[1].ip}
     dhcp4: false
     routes:
       - to: 10.30.0.0/24
         via: 10.30.0.1
         metric: 200
+
+
