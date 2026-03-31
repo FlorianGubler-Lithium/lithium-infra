@@ -14,7 +14,9 @@ locals {
   }
 
   # Generate inventory content
-  ansible_inventory = templatefile("${path.module}/templates/inventory.ini.tpl", local.ansible_groups)
+  ansible_inventory = templatefile("${path.module}/templates/inventory.ini.tpl", {
+    ansible_groups = local.ansible_groups
+  })
 }
 
 output "ansible_inventory_data" {
