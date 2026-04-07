@@ -9,8 +9,8 @@ module "deployment_vms" {
   pm_node                     = var.pm_node
 
   vm_ci_base_image_file_id    = var.vm_ci_base_image_file_id
-  vm_ci_networkdata_file_path = "vm-configs/deployments/cloud-init/${each.key}/userdata.yaml.tftpl"
-  vm_ci_userdata_file_path    = "vm-configs/deployments/cloud-init/${each.key}/network.yaml.tftpl"
+  vm_ci_networkdata_file_path = "vm-configs/deployments/cloud-init/${each.key}/network.yaml.tftpl"
+  vm_ci_userdata_file_path    = "vm-configs/deployments/cloud-init/${each.key}/userdata.yaml.tftpl"
 
   vm_cpu_cores                = each.value.vm_cpu_cores
   vm_disk_size                = each.value.vm_disk_size
