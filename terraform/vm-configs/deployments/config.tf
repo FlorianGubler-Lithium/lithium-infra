@@ -75,7 +75,7 @@ locals {
       ]
       vm_groups = ["dev", "mgmt"]
     },
-    "mgmg-prod-001" = {
+    "mgmt-prod-001" = {
       vm_id     = 2003
       vm_ci_userdata_file_path = "vm-configs/deployments/cloud-init/mgmt-prod-001/userdata.yaml.tftpl"
       vm_ci_networkdata_file_path = "vm-configs/deployments/cloud-init/mgmt-prod-001/network.yaml.tftpl"
