@@ -2,3 +2,44 @@
 terraform/terraform.tfvars
 terraform/.terraform
 terraform/.terraform.lock.hcl
+
+ansible/inventory.ini
+
+# Terraform state files (contain sensitive data)
+*.tfstate
+*.tfstate.*
+.terraform.tfstate*
+
+# Terraform variables files (contain credentials and secrets)
+terraform.tfvars
+terraform.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
+
+# Terraform directories
+.terraform/
+.terraform.lock.hcl
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS-specific files
+Thumbs.db
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude plan files (optional - uncomment if desired)
+# *.tfplan
+
+# Local development
+*.backup
+.env
+.env.local
+
