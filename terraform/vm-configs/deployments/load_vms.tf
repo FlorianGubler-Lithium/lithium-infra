@@ -25,5 +25,7 @@ module "deployment_vms" {
 
   vm_password                 = var.vm_password
   ssh_public_key              = var.ssh_public_key
+
+  depends_on = [local.deployment_vms]
 }
 

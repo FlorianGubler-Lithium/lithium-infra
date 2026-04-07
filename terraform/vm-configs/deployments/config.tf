@@ -2,8 +2,6 @@ locals {
   deployment_vms = {
     "kube-dev-master-001" = {
       vm_id                       = 1001
-      vm_ci_userdata_file_path    = "vm-configs/deployments/cloud-init/kube-dev-master-001/userdata.yaml.tftpl"
-      vm_ci_networkdata_file_path = "vm-configs/deployments/cloud-init/kube-dev-master-001/network.yaml.tftpl"
       vm_memory                   = 4096
       vm_cpu_cores                = 2
       vm_disk_size                = 20
@@ -17,8 +15,6 @@ locals {
     },
     "kube-dev-worker-001" = {
       vm_id                       = 1002
-      vm_ci_userdata_file_path    = "vm-configs/deployments/cloud-init/kube-dev-worker-001/userdata.yaml.tftpl"
-      vm_ci_networkdata_file_path = "vm-configs/deployments/cloud-init/kube-dev-worker-001/network.yaml.tftpl"
       vm_memory                   = 4096
       vm_cpu_cores                = 2
       vm_disk_size                = 20
@@ -32,8 +28,6 @@ locals {
     },
     "kube-prod-master-001" = {
       vm_id     = 2001
-      vm_ci_userdata_file_path = "vm-configs/deployments/cloud-init/kube-prod-master-001/userdata.yaml.tftpl"
-      vm_ci_networkdata_file_path = "vm-configs/deployments/cloud-init/kube-prod-master-001/network.yaml.tftpl"
       vm_memory = 4096
       vm_cpu_cores = 2
       vm_disk_size = 20
@@ -47,8 +41,6 @@ locals {
     },
     "kube-prod-worker-001" = {
       vm_id     = 2002
-      vm_ci_userdata_file_path = "vm-configs/deployments/cloud-init/kube-prod-worker-001/userdata.yaml.tftpl"
-      vm_ci_networkdata_file_path = "vm-configs/deployments/cloud-init/kube-prod-worker-001/network.yaml.tftpl"
       vm_memory = 4096
       vm_cpu_cores = 2
       vm_disk_size = 20
@@ -62,8 +54,6 @@ locals {
     }
     "mgmt-dev-001" = {
       vm_id     = 1003
-      vm_ci_userdata_file_path = "vm-configs/deployments/cloud-init/mgmt-dev-001/userdata.yaml.tftpl"
-      vm_ci_networkdata_file_path = "vm-configs/deployments/cloud-init/mgmt-dev-001/network.yaml.tftpl"
       vm_memory = 4096
       vm_cpu_cores = 2
       vm_disk_size = 20
@@ -77,8 +67,6 @@ locals {
     },
     "mgmt-prod-001" = {
       vm_id     = 2003
-      vm_ci_userdata_file_path = "vm-configs/deployments/cloud-init/mgmt-prod-001/userdata.yaml.tftpl"
-      vm_ci_networkdata_file_path = "vm-configs/deployments/cloud-init/mgmt-prod-001/network.yaml.tftpl"
       vm_memory = 4096
       vm_cpu_cores = 2
       vm_disk_size = 20
