@@ -33,6 +33,12 @@ users:
   - name: root
     lock_passwd: false
     plain_text_passwd: "${vm_password}"
+  - name: semaphore
+    gecos: Semaphore UI
+    groups: semaphore
+    shell: /bin/bash
+    lock_passwd: true
+    homedir: /home/semaphore
 
 package_update: true
 package_upgrade: true
@@ -174,19 +180,6 @@ runcmd:
   - sudo apt update
   - sudo apt install -y terraform
 
-  # Setup Semaphore
-  - mkdir -p /etc/semaphore
-  - mkdir -p /var/lib/semaphore
-  - mkdir -p /tmp/semaphore
-
-  # Create semaphore user
-  - useradd -m -s /bin/bash semaphore || true
-
-  # Set proper permissions
-  - chown -R semaphore:semaphore /var/lib/semaphore
-  - chown -R semaphore:semaphore /tmp/semaphore
-  - chown semaphore:semaphore /etc/semaphore/config.json
-
   # Enable and start PostgreSQL
   - systemctl enable postgresql
   - systemctl start postgresql
@@ -197,9 +190,12 @@ runcmd:
   - sudo -u postgres psql -c "ALTER ROLE semaphore WITH PASSWORD '${semaphore_db_password}';"
   - sudo -u postgres psql -d semaphore -c "GRANT ALL PRIVILEGES ON SCHEMA public TO semaphore;"
 
+  # Set proper permissions
+  - chown semaphore:semaphore /etc/semaphore/config.json
+  -
   # Download and install Semaphore
-  - cd /tmp && wget -q https://github.com/ansible-semaphore/semaphore/releases/download/v${semaphore_version}/semaphore_${semaphore_version}_linux_amd64.deb
-  - apt install -y /tmp/semaphore_${semaphore_version}_linux_amd64.deb
+  - cd /tmp && wget -q https://github.com/semaphoreui/semaphore/releases/download/v${semaphore_version}/semaphore_${semaphore_version}_linux_amd64.deb
+  - dpkg -i semaphore_${semaphore_version}_linux_amd64.deb
 
   # Run database migration
   - sudo -u semaphore /usr/bin/semaphore migrate --config /etc/semaphore/config.json

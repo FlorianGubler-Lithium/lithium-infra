@@ -20,7 +20,6 @@ variable "ssh_public_key" {
 variable "semaphore_version" {
   type        = string
   description = "Semaphore version to install"
-  default     = "2.10.1"
 }
 
 variable "semaphore_admin_password" {
