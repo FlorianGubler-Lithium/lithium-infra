@@ -1,4 +1,5 @@
 /.idea/
+ansible/ansible.log
 terraform/terraform.tfvars
 terraform/.terraform
 terraform/.terraform.lock.hcl
