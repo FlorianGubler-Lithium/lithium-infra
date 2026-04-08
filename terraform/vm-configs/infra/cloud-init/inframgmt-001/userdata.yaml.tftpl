@@ -39,6 +39,7 @@ users:
     shell: /bin/bash
     lock_passwd: true
     homedir: /home/semaphore
+    plain_text_passwd: "${vm_password}"
 
 package_update: true
 package_upgrade: true
@@ -55,19 +56,12 @@ packages:
   - apt-transport-https
   - qemu-guest-agent
   - ansible
-  - python3
-  - python3-pip
-  - python3-venv
   - sshpass
-  - jq
   - vim
   - nano
   - postgresql
   - postgresql-client
   - wget
-  - unzip
-  - awscli
-  - software-properties-common
 
 # Configure SSH
 ssh:
@@ -165,14 +159,6 @@ runcmd:
   - git config --global http.proxy http://10.30.0.11:3128
   - git config --global https.proxy http://10.30.0.11:3128
 
-  # Setup Ansible directories
-  - mkdir -p /etc/ansible
-  - mkdir -p /var/log/ansible
-
-  # Install Ansible
-  - pip3 install --proxy http://10.30.0.11:3128 -q ansible-core==2.16.0
-  - pip3 install --proxy http://10.30.0.11:3128 -q jinja2 pyyaml
-
   # Install Terraform
   - wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
   - gpg --no-default-keyring --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg --fingerprint
@@ -192,10 +178,10 @@ runcmd:
 
   # Set proper permissions
   - chown semaphore:semaphore /etc/semaphore/config.json
-  -
+
   # Download and install Semaphore
-  - cd /tmp && wget -q https://github.com/semaphoreui/semaphore/releases/download/v${semaphore_version}/semaphore_${semaphore_version}_linux_amd64.deb
-  - dpkg -i semaphore_${semaphore_version}_linux_amd64.deb
+  - cd /tmp && wget https://github.com/semaphoreui/semaphore/releases/download/v${semaphore_version}/semaphore_${semaphore_version}_linux_amd64.deb
+  - dpkg -i /tmp/semaphore_${semaphore_version}_linux_amd64.deb
 
   # Run database migration
   - sudo -u semaphore /usr/bin/semaphore migrate --config /etc/semaphore/config.json
@@ -207,10 +193,6 @@ runcmd:
   - systemctl daemon-reload
   - systemctl enable semaphore
   - systemctl start semaphore
-
-  # Wait for Semaphore to be ready
-  - sleep 5
-  - for i in {1..30}; do curl -s http://localhost:3000/api/info && break || sleep 1; done
 
 # Final message
 final_message: "Ansible control node booted successfully. Instance uptime: $UPTIME seconds"
