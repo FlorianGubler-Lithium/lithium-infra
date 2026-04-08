@@ -100,24 +100,24 @@ write_files:
     permissions: '0644'
     content: |
       {
-        "port": 3000,
         "postgres": {
           "host": "localhost",
           "user": "semaphore",
           "pass": "${semaphore_db_password}",
           "name": "semaphore",
-          "port": 5432
+          "options": {
+            "sslmode": "disable"
+          }
         },
+        "dialect": "postgres",
+        "tmp_path": "/tmp/semaphore",
+        "port": "3000",
         "web_host": "0.0.0.0",
         "web_protocol": "http",
-        "cookie_hash": "abcdefghijklmnop",
-        "cookie_encryption": "abcdefghijklmnop",
-        "access_key_encryption": "abcdefghijklmnop",
         "ansible": {
           "host": "127.0.0.1",
           "connection": "local"
-        },
-        "tmp_path": "/tmp/semaphore"
+        }
       }
 
   # Semaphore systemd service
