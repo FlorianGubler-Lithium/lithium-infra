@@ -22,6 +22,13 @@ module "ansible_vm" {
   ]
   ssh_public_key = var.ssh_public_key
 
+  # Semaphore configuration
+  extra_vars = {
+    semaphore_version            = var.semaphore_version
+    semaphore_admin_password     = var.semaphore_admin_password
+    semaphore_db_password        = var.semaphore_db_password
+  }
+
   pm_node = var.pm_node
 
   depends_on = [module.proxy_vm]

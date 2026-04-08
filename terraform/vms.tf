@@ -24,6 +24,11 @@ module "infra_vms" {
   vm_password = var.vm_password
   ssh_public_key = var.ssh_public_key
 
+  # Semaphore configuration
+  semaphore_version = var.semaphore_version
+  semaphore_admin_password = var.semaphore_admin_password
+  semaphore_db_password = var.semaphore_db_password
+
   depends_on = [proxmox_virtual_environment_sdn_applier.sdn_applier]
 }
 

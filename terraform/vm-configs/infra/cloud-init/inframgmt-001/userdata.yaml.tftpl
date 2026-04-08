@@ -96,6 +96,60 @@ write_files:
       become_user = root
       become_ask_pass = False
 
+  # Semaphore configuration
+  - path: /etc/semaphore/config.json
+    owner: root:root
+    permissions: '0644'
+    content: |
+      {
+        "port": 3000,
+        "postgres": {
+          "host": "localhost",
+          "user": "semaphore",
+          "pass": "${semaphore_db_password}",
+          "name": "semaphore",
+          "port": "5432"
+        },
+        "web_host": "0.0.0.0",
+        "web_protocol": "http",
+        "cookie_hash": "abcdefghijklmnop",
+        "cookie_encryption": "abcdefghijklmnop",
+        "access_key_encryption": "abcdefghijklmnop",
+        "ansible": {
+          "host": "127.0.0.1",
+          "connection": "local"
+        },
+        "tmp_path": "/tmp/semaphore"
+      }
+
+  # Semaphore systemd service
+  - path: /etc/systemd/system/semaphore.service
+    owner: root:root
+    permissions: '0644'
+    content: |
+      [Unit]
+      Description=Semaphore UI - Ansible Web Interface
+      After=network.target postgresql.service
+      Wants=postgresql.service
+
+      [Service]
+      Type=simple
+      User=semaphore
+      Group=semaphore
+      WorkingDirectory=/var/lib/semaphore
+      ExecStart=/usr/bin/semaphore service --config /etc/semaphore/config.json
+      Restart=always
+      RestartSec=10
+      Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      Environment="HOME=/home/semaphore"
+      NoNewPrivileges=true
+      PrivateTmp=true
+      TimeoutStartSec=30
+      TimeoutStopSec=10
+
+      [Install]
+      WantedBy=multi-user.target
+
 # Run commands to set up Ansible and related tools
 runcmd:
   - systemctl enable qemu-guest-agent
@@ -119,6 +173,48 @@ runcmd:
   - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
   - sudo apt update
   - sudo apt install -y terraform
+
+  # Setup Semaphore
+  - mkdir -p /etc/semaphore
+  - mkdir -p /var/lib/semaphore
+  - mkdir -p /tmp/semaphore
+
+  # Create semaphore user
+  - useradd -m -s /bin/bash semaphore || true
+
+  # Set proper permissions
+  - chown -R semaphore:semaphore /var/lib/semaphore
+  - chown -R semaphore:semaphore /tmp/semaphore
+  - chown semaphore:semaphore /etc/semaphore/config.json
+
+  # Enable and start PostgreSQL
+  - systemctl enable postgresql
+  - systemctl start postgresql
+
+  # Create Semaphore database and user
+  - sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname = 'semaphore'" | grep -q 1 || sudo -u postgres createdb semaphore
+  - sudo -u postgres psql -tc "SELECT 1 FROM pg_user WHERE usename = 'semaphore'" | grep -q 1 || sudo -u postgres psql -c "CREATE USER semaphore WITH PASSWORD '${semaphore_db_password}';"
+  - sudo -u postgres psql -c "ALTER ROLE semaphore WITH PASSWORD '${semaphore_db_password}';"
+  - sudo -u postgres psql -d semaphore -c "GRANT ALL PRIVILEGES ON SCHEMA public TO semaphore;"
+
+  # Download and install Semaphore
+  - cd /tmp && wget -q https://github.com/ansible-semaphore/semaphore/releases/download/v${semaphore_version}/semaphore_${semaphore_version}_linux_amd64.deb
+  - apt install -y /tmp/semaphore_${semaphore_version}_linux_amd64.deb
+
+  # Run database migration
+  - sudo -u semaphore /usr/bin/semaphore migrate --config /etc/semaphore/config.json
+
+  # Create admin user
+  - sudo -u semaphore /usr/bin/semaphore user add --email "admin@lithium.local" --name "Admin User" --login "admin" --password "${semaphore_admin_password}" --admin --config /etc/semaphore/config.json 2>/dev/null || true
+
+  # Enable and start Semaphore service
+  - systemctl daemon-reload
+  - systemctl enable semaphore
+  - systemctl start semaphore
+
+  # Wait for Semaphore to be ready
+  - sleep 5
+  - for i in {1..30}; do curl -s http://localhost:3000/api/info && break || sleep 1; done
 
 # Final message
 final_message: "Ansible control node booted successfully. Instance uptime: $UPTIME seconds"
