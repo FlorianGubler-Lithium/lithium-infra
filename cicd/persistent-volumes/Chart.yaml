@@ -1,5 +1,0 @@
-apiVersion: v2
-name: persistent-volumes
-description: A Helm chart for Persistent Volumes
-type: application
-version: 0.1.0

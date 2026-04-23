@@ -1,5 +1,0 @@
-apiVersion: v2
-name: external-access
-description: A Helm chart for External Credentials / Access Stuff
-type: application
-version: 0.1.0

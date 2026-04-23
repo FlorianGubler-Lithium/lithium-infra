@@ -1,5 +1,0 @@
-apiVersion: v2
-name: calico
-description: A Helm chart for calico stuff
-type: application
-version: 0.1.0
